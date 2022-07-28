@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  username  String   @unique
+  name      String
+  password  String
+  birthDate DateTime
+  bio       String?  @default("Socialko uporabnik")
+
+  profilePicture   PublicFile? @relation(fields: [profilePictureId], references: [id])
+  profilePictureId Int?
+
+  posts   Post[]
+  stories Story[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("user")
+}
+
+model Post {
+  id        Int         @id @default(autoincrement())
+  image     PublicFile? @relation(fields: [imageId], references: [id])
+  imageId   Int?
+  upvotes   Int         @default(0)
+  downvotes Int         @default(0)
+  author    User?       @relation(fields: [authorId], references: [id])
+  authorId  Int?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now()) @updatedAt
+}
+
+model Story {
+  id        Int         @id @default(autoincrement())
+  image     PublicFile? @relation(fields: [imageId], references: [id])
+  imageId   Int?
+  upvotes   Int         @default(0)
+  downvotes Int         @default(0)
+  author    User?       @relation(fields: [authorId], references: [id])
+  authorId  Int?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now()) @updatedAt
+}
+
+model PublicFile {
+  id        Int      @id @default(autoincrement())
+  url       String
+  key       String   @unique
+  profile   User[]
+  post      Post[]
+  story     Story[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
