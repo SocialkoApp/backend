@@ -12,4 +12,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: process.env.SECRETKEY,
     });
   }
+
+  async validate(payload: JwtPayload): Promise<any> {
+    const user = await this.authService.validateUser(payload);
+    if (!user) {
+      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+    }
+    return user;
+  }
+}
+
+export interface JwtPayload {
+  username: string;
 }
