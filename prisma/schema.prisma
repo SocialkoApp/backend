@@ -11,34 +11,47 @@ generator client {
 }
 
 model User {
-  id    String @id
-  email String @unique
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  username String @unique
 
-  firstName String
-  lastName  String
+  birthDate DateTime?
+
+  role Role @default(USER)
+
+  password String
+
+  emailConfirmed          Boolean   @default(value: false)
+  emailConfirmationSentAt DateTime?
+
+  forgotPasswordToken String?
 
   profile Profile?
-
-  // followers Follow[] @relation(name: "Followers")
-  // Following Follow[] @relation(name: "Following")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
 
+enum Role {
+  USER
+  EDITOR
+  ADMIN
+}
+
 model Profile {
   id Int @id @default(autoincrement())
 
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
+  firstName String?
+  lastName  String?
 
-  username String @unique
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
 
-  Post  Post[]
-  Story Story[]
+  posts   Post[]
+  stories Story[]
 
-  PublicFile   PublicFile? @relation(fields: [publicFileId], references: [id])
-  publicFileId Int?
+  profilePicture   PublicFile? @relation(fields: [profilePictureId], references: [id])
+  profilePictureId Int?
 
   bio       String?
   birthDate DateTime?

@@ -1,15 +1,55 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { V0alpha2Api } from '@ory/kratos-client';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { UserService } from '../user/user.service';
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { AuthLoginDto } from './dto/auth-login.dto';
 
 @Injectable()
 export class AuthService {
-  public readonly api: V0alpha2Api;
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  constructor(private readonly configService: ConfigService) {
-    console.log(this.configService.get<string>('KRATOS_URL'));
-    const kratosAdminUrl = this.configService.get<string>('KRATOS_URL');
+  private readonly logger: Logger = new Logger(AuthService.name);
 
-    this.api = new V0alpha2Api(null, kratosAdminUrl);
+  async validateUser(authLoginDto: AuthLoginDto) {
+    const { username, password } = authLoginDto;
+    const user = await this.userService.findByUsernameOrEmail(username);
+    if (user) {
+      const valid = await bcrypt.compare(password, user.password);
+      if (valid) {
+        const { password, ...result } = user;
+        if (!user.emailConfirmed) {
+          this.logger.verbose(
+            `${authLoginDto.username} tried to login but didn't have email confirmed`,
+          );
+          throw new ForbiddenException(`Email not confirmed`);
+        }
+        this.logger.verbose(`${authLoginDto.username} logged in`);
+        return result;
+      }
+    }
+    this.logger.verbose(
+      `${authLoginDto.username} tried to login but didn't provide correct credentials`,
+    );
+    throw new UnauthorizedException();
+  }
+
+  async login(authLoginDto: AuthLoginDto) {
+    const user = await this.validateUser(authLoginDto);
+
+    const payload = {
+      userId: user.id,
+    };
+
+    return {
+      accessToken: this.jwtService.sign(payload),
+    };
   }
 }

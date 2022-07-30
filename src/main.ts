@@ -1,15 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AuthService } from './auth/auth.service';
-import { SessionInterceptor } from './auth/interceptors/session.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  app.useGlobalInterceptors(
-    new SessionInterceptor(app.get<AuthService>(AuthService)),
-  );
 
   const config = new DocumentBuilder()
     .setTitle('Socialko')
