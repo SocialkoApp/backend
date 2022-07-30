@@ -11,7 +11,7 @@ export class AuthLoginDto {
   username: string;
 
   @ApiProperty({
-    name: 'Password',
+    name: 'password',
     example: 'jeffbezos123',
   })
   @IsNotEmpty()

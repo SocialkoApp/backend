@@ -3,7 +3,7 @@ import { IsEmail, IsString, Length } from 'class-validator';
 
 export class UpdatePublicUserDto {
   @ApiProperty({
-    name: 'Username',
+    name: 'username',
     example: 'jeffy.bezos+',
   })
   @IsString()
@@ -11,14 +11,14 @@ export class UpdatePublicUserDto {
   username?: string;
 
   @ApiProperty({
-    name: 'Email',
+    name: 'email',
     example: 'jeff.bezos@gmail.com',
   })
   @IsEmail()
   email?: string;
 
   @ApiProperty({
-    name: 'Password',
+    name: 'password',
     example: 'jeffbezos123',
   })
   @IsString()

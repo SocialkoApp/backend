@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 
 export class ConfirmEmailDto {
   @ApiProperty({
-    name: 'Token',
+    name: 'token',
   })
   @IsString()
   @IsNotEmpty()

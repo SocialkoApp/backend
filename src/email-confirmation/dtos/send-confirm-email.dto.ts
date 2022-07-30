@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class SendConfirmEmailDto {
   @ApiProperty({
-    name: 'Email',
+    name: 'email',
     example: 'jeff.bezos@gmail.com',
   })
   @IsEmail()

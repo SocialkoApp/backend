@@ -5,7 +5,6 @@ import {
   IsDate,
   IsEmail,
   IsEnum,
-  IsInt,
   IsJWT,
   IsString,
   Length,
@@ -13,7 +12,7 @@ import {
 
 export class UpdateUserDto {
   @ApiProperty({
-    name: 'Username',
+    name: 'username',
     example: 'jeffy.bezos',
   })
   @IsString()
@@ -21,14 +20,14 @@ export class UpdateUserDto {
   username?: string;
 
   @ApiProperty({
-    name: 'Email',
+    name: 'email',
     example: 'jeff.bezos@gmail.com',
   })
   @IsEmail()
   email?: string;
 
   @ApiProperty({
-    name: 'Password',
+    name: 'password',
     example: 'jeffbezos123',
   })
   @IsString()
@@ -36,36 +35,29 @@ export class UpdateUserDto {
   password?: string;
 
   @ApiProperty({
-    name: 'Role',
+    name: 'role',
     enum: Role,
   })
   @IsEnum(Role)
   role?: Role;
 
   @ApiProperty({
-    name: 'Email Confirmed',
+    name: 'emailConfirmed',
     example: false,
   })
   @IsBoolean()
   emailConfirmed?: boolean;
 
   @ApiProperty({
-    name: 'Sent Email Confirmation',
+    name: 'emailConfirmationSentAt',
     example: '2022-07-30T12:00:00Z',
   })
   @IsDate()
   emailConfirmationSentAt?: Date;
 
   @ApiProperty({
-    name: 'Birth Date',
-    example: '2003-12-18T16:32:00Z',
-  })
-  @IsDate()
-  birthDate?: Date;
-
-  @ApiProperty({
-    name: 'Token',
-    example: 'token',
+    name: 'forgotPasswordToken',
+    example: 'forgotPasswordToken',
   })
   @IsJWT()
   forgotPasswordToken?: string;
