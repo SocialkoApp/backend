@@ -77,7 +77,6 @@ export class UserService {
     lastName,
   }: RegisterDto) {
     const hashedPassword = await this.hashPassword(password);
-    console.log(firstName);
 
     try {
       const user = await this.prisma.user.create({
@@ -99,6 +98,8 @@ export class UserService {
       );
 
       this.emailConfirmationService.sendConfirmationEmail(user.email);
+
+      this.logger.verbose(user);
 
       return user;
     } catch (e) {

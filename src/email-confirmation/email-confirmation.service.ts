@@ -56,6 +56,11 @@ export class EmailConfirmationService {
     }
     await this.userService.update({ email }, { emailConfirmed: true });
     this.logger.verbose(`Email ${email} confirmed`);
+
+    return {
+      devMessage: 'EMAIL_CONFIRMED',
+      message: `Email ${email} was confirmed`,
+    };
   }
 
   decodeConfirmationToken(token: string) {

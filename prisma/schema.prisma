@@ -15,8 +15,6 @@ model User {
   email    String @unique
   username String @unique
 
-  birthDate DateTime?
-
   role Role @default(USER)
 
   password String
