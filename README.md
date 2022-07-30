@@ -2,8 +2,7 @@
   <a href="http://aikenahac.com/" target="blank"><img src="https://s3.eu-central-1.wasabisys.com/socialko/logo.svg" style="border-radius: 25px" width="200" alt="Nest Logo" /></a>
 </p>
 
-  <p align="center">Backend for Socialko, an open source social media app.</p>
-    <p align="center">
+<p align="center">Backend for Socialko, an open source social media app.</p>
 
 ## Installation
 
