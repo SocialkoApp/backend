@@ -26,7 +26,7 @@ import { UserModule } from 'src/user/user.module';
           from: `"Socialko" <${config.get('MAIL_FROM')}>`,
         },
         template: {
-          dir: join(__dirname, '..', '..', '..', 'templates'),
+          dir: join(__dirname, '..', '..', 'templates'),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,

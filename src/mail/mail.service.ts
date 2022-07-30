@@ -26,7 +26,7 @@ export class MailService {
       template: late ? './email-late' : './email',
       context: {
         name: user.profile.firstName,
-        url: `${url}${token}`,
+        url: `${url}/${token}`,
       },
     });
   }
@@ -43,7 +43,7 @@ export class MailService {
       template: './password',
       context: {
         name: user.profile.firstName,
-        url: `${url}${token}`,
+        url: `${url}/${token}`,
       },
     });
   }

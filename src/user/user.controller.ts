@@ -55,6 +55,6 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Put()
   updateUser(@UserId() id: number, @Body() updateUserDto: UpdatePublicUserDto) {
-    return this.userService.updatePublic(+id, updateUserDto);
+    return this.userService.updatePublic(id, updateUserDto);
   }
 }

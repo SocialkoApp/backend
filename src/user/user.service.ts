@@ -77,6 +77,7 @@ export class UserService {
     lastName,
   }: RegisterDto) {
     const hashedPassword = await this.hashPassword(password);
+    console.log(firstName);
 
     try {
       const user = await this.prisma.user.create({
@@ -86,8 +87,8 @@ export class UserService {
           password: hashedPassword,
           profile: {
             create: {
-              firstName,
-              lastName,
+              firstName: firstName,
+              lastName: lastName,
             },
           },
         },
