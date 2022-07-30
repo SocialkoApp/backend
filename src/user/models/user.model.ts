@@ -26,13 +26,6 @@ export class User implements Prisma.User {
   @Expose()
   lastName: string;
 
-  @ApiProperty({
-    description: 'Username',
-    example: 'bezosjeffy',
-  })
-  @Expose()
-  username: string;
-
   updatedAt: Date;
   createdAt: Date;
 }

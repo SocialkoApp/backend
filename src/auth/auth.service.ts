@@ -7,6 +7,7 @@ export class AuthService {
   public readonly api: V0alpha2Api;
 
   constructor(private readonly configService: ConfigService) {
+    console.log(this.configService.get<string>('KRATOS_URL'));
     const kratosAdminUrl = this.configService.get<string>('KRATOS_URL');
 
     this.api = new V0alpha2Api(null, kratosAdminUrl);
