@@ -11,25 +11,50 @@ generator client {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  username  String   @unique
-  name      String
-  password  String
-  birthDate DateTime
-  bio       String?  @default("Socialko uporabnik")
+  id        String @id
+  email     String @unique
+  username  String @unique
+  firstName String
+  lastName  String
 
-  profilePicture   PublicFile? @relation(fields: [profilePictureId], references: [id])
-  profilePictureId Int?
+  profile Profile?
 
-  posts   Post[]
-  stories Story[]
+  // followers Follow[] @relation(name: "Followers")
+  // Following Follow[] @relation(name: "Following")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-
-  @@map("user")
 }
+
+model Profile {
+  id Int @id @default(autoincrement())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  Post  Post[]
+  Story Story[]
+
+  PublicFile   PublicFile? @relation(fields: [publicFileId], references: [id])
+  publicFileId Int?
+
+  bio       String?
+  birthDate DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// model Follow {
+//   id          Int  @id @default(autoincrement())
+//   follower    User @relation(name: "Followers", fields: [followerId], references: [id])
+//   followerId  Int
+//   following   User @relation(name: "Following", fields: [followingId], references: [id])
+//   followingId Int
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @default(now()) @updatedAt
+// }
 
 model Post {
   id        Int         @id @default(autoincrement())
@@ -37,7 +62,7 @@ model Post {
   imageId   Int?
   upvotes   Int         @default(0)
   downvotes Int         @default(0)
-  author    User?       @relation(fields: [authorId], references: [id])
+  author    Profile?    @relation(fields: [authorId], references: [id])
   authorId  Int?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @default(now()) @updatedAt
@@ -49,19 +74,19 @@ model Story {
   imageId   Int?
   upvotes   Int         @default(0)
   downvotes Int         @default(0)
-  author    User?       @relation(fields: [authorId], references: [id])
+  author    Profile?    @relation(fields: [authorId], references: [id])
   authorId  Int?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @default(now()) @updatedAt
 }
 
 model PublicFile {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   url       String
-  key       String   @unique
-  profile   User[]
+  key       String    @unique
+  profile   Profile[]
   post      Post[]
   story     Story[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
 }
