@@ -39,7 +39,7 @@ export class MailService {
     const user = await this.userService.find({ email });
     return this.mailerService.sendMail({
       to: user.email,
-      subject: 'Ponastavitev gesla',
+      subject: 'Password reset',
       template: './password',
       context: {
         name: user.profile.firstName,

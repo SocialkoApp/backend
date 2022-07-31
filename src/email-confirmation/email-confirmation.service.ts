@@ -58,7 +58,6 @@ export class EmailConfirmationService {
     this.logger.verbose(`Email ${email} confirmed`);
 
     return {
-      devMessage: 'EMAIL_CONFIRMED',
       message: `Email ${email} was confirmed`,
     };
   }
