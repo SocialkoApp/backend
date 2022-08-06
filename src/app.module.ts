@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { MailModule } from './mail/mail.module';
 import { ForgotPasswordModule } from './forgot-password/forgot-password.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ForgotPasswordModule } from './forgot-password/forgot-password.module';
     EmailConfirmationModule,
     MailModule,
     ForgotPasswordModule,
+    ProfileModule,
   ],
 })
 export class AppModule {}

@@ -51,8 +51,7 @@ model Profile {
   profilePicture   PublicFile? @relation(fields: [profilePictureId], references: [id])
   profilePictureId Int?
 
-  bio       String?
-  birthDate DateTime?
+  bio String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
