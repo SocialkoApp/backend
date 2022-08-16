@@ -63,6 +63,7 @@ export class UserService {
           password: hashedPassword,
         },
       });
+
       return user;
     } catch (e) {
       this.handleException(e);
