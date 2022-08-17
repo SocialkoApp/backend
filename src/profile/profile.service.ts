@@ -51,8 +51,6 @@ export class ProfileService {
   async updateProfile(id: number, updateProfileDto: UpdateProfileDto) {
     const { profileId } = await this.userService.find({ id });
 
-    this.logger;
-
     try {
       const profile = await this.prisma.profile.update({
         where: { id: profileId },
