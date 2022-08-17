@@ -74,8 +74,9 @@ model Post {
   image   PublicFile? @relation(fields: [imageId], references: [id])
   imageId Int?
 
-  upvotes   Int @default(0)
-  downvotes Int @default(0)
+  upvotes     Int     @default(0)
+  downvotes   Int     @default(0)
+  description String?
 
   author   Profile? @relation(fields: [authorId], references: [id])
   authorId Int?

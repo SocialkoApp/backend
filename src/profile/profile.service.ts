@@ -22,12 +22,27 @@ export class ProfileService {
   private readonly logger: Logger = new Logger(ProfileService.name);
 
   private public: Prisma.ProfileSelect = {
+    id: true,
     firstName: true,
     lastName: true,
     bio: true,
+    user: {
+      select: {
+        username: true,
+      },
+    },
     profilePicture: {
       select: {
         url: true,
+      },
+    },
+    posts: {
+      select: {
+        image: {
+          select: {
+            url: true,
+          },
+        },
       },
     },
     updatedAt: true,

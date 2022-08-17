@@ -8,6 +8,7 @@ import { ProfileService } from './profile.service';
 @Module({
   imports: [UserModule],
   providers: [ProfileService, PrismaService, FilesService],
+  exports: [ProfileService, PrismaService],
   controllers: [ProfileController],
 })
 export class ProfileModule {}

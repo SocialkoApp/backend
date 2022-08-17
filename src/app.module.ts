@@ -9,6 +9,7 @@ import { ForgotPasswordModule } from './forgot-password/forgot-password.module';
 import { ProfileModule } from './profile/profile.module';
 import { FilesModule } from './files/files.module';
 import { RoleModule } from './role/role.module';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { RoleModule } from './role/role.module';
     ProfileModule,
     FilesModule,
     RoleModule,
+    PostModule,
   ],
 })
 export class AppModule {}
