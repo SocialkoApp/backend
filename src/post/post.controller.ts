@@ -17,7 +17,7 @@ import { GetPostDto } from './dto/getPost.dto';
 import { UserId } from 'src/user/user.decorator';
 
 @ApiTags('Post')
-@Controller('post')
+@Controller('posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
@@ -27,6 +27,14 @@ export class PostController {
   @Get(':id')
   async getPostById(@Param() params: GetPostDto) {
     return this.postService.getPost(params.id);
+  }
+
+  @ApiBearerAuth('User')
+  @ApiBearerAuth('Admin')
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getPosts(@UserId() id: number) {
+    return this.postService.getPosts(id);
   }
 
   @ApiBearerAuth('User')

@@ -91,7 +91,22 @@ export class PostService {
   }
 
   // Get all posts that weren't posted by you
-  async getAllPosts() {}
+  async getPosts(id: number) {
+    const { profileId } = await this.userService.find({ id });
+
+    try {
+      const posts = await this.prisma.post.findMany({
+        where: {
+          authorId: { not: profileId },
+        },
+        select: this.public,
+      });
+
+      return posts;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
 
   async check(id: number) {
     if (!(await this.prisma.post.findUnique({ where: { id } }))) {
