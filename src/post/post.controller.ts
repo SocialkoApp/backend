@@ -14,6 +14,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { PostService } from './post.service';
 import { GetPostDto } from './dto/getPost.dto';
+import { UserId } from 'src/user/user.decorator';
 
 @ApiTags('Post')
 @Controller('post')
@@ -32,8 +33,8 @@ export class PostController {
   @ApiBearerAuth('Admin')
   @UseGuards(JwtAuthGuard)
   @Post()
-  async uploadPost(@Body() body: CreatePostDto) {
-    return this.postService.createPost(body);
+  async uploadPost(@UserId() id: number, @Body() body: CreatePostDto) {
+    return this.postService.createPost(id, body);
   }
 
   @ApiBearerAuth('User')

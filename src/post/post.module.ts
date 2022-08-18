@@ -4,9 +4,10 @@ import { PostController } from './post.controller';
 import { ProfileModule } from 'src/profile/profile.module';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FilesService } from 'src/files/files.service';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [ProfileModule],
+  imports: [ProfileModule, UserModule],
   providers: [PostService, PrismaService, FilesService],
   controllers: [PostController],
 })

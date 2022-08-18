@@ -10,13 +10,6 @@ export class CreatePostDto {
   description?: string;
 
   @ApiProperty({
-    name: 'authorId',
-    example: 1,
-  })
-  @IsInt()
-  authorId: number;
-
-  @ApiProperty({
     name: 'imageId',
     example: 1,
   })
