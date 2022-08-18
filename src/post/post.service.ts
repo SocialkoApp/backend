@@ -1,15 +1,18 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { FilesService } from 'src/files/files.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ProfileService } from 'src/profile/profile.service';
 import { CreatePostDto } from './dto/create.dto';
 
 @Injectable()
 export class PostService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly profileService: ProfileService,
     private readonly filesService: FilesService,
   ) {}
 
@@ -59,11 +62,33 @@ export class PostService {
           imageId,
           authorId,
         },
+        select: this.public,
       });
 
       return post;
     } catch (e) {
       this.handleException(e);
+    }
+  }
+
+  async getPost(id: string) {
+    const postId = parseInt(id);
+    this.check(postId);
+    try {
+      const post = await this.prisma.post.findUnique({
+        where: { id: postId },
+        select: this.public,
+      });
+
+      return post;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async check(id: number) {
+    if (!(await this.prisma.post.findUnique({ where: { id } }))) {
+      throw new NotFoundException('This post does not exist');
     }
   }
 

@@ -2,6 +2,8 @@ import { CreatePostDto } from './dto/create.dto';
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   UploadedFile,
   UseGuards,
@@ -11,11 +13,20 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { PostService } from './post.service';
+import { GetPostDto } from './dto/getPost.dto';
 
 @ApiTags('Post')
 @Controller('post')
 export class PostController {
   constructor(private readonly postService: PostService) {}
+
+  @ApiBearerAuth('User')
+  @ApiBearerAuth('Admin')
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async getPostById(@Param() params: GetPostDto) {
+    return this.postService.getPost(params.id);
+  }
 
   @ApiBearerAuth('User')
   @ApiBearerAuth('Admin')

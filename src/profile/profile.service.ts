@@ -38,6 +38,9 @@ export class ProfileService {
     },
     posts: {
       select: {
+        description: true,
+        upvotes: true,
+        downvotes: true,
         image: {
           select: {
             url: true,
