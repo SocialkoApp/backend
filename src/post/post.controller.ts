@@ -1,3 +1,4 @@
+import { GetUserPostsDto } from './dto/getPosts.dto';
 import { CreatePostDto } from './dto/create.dto';
 import {
   Body,
@@ -27,6 +28,14 @@ export class PostController {
   @Get(':id')
   async getPostById(@Param() params: GetPostDto) {
     return this.postService.getPost(params.id);
+  }
+
+  @ApiBearerAuth('User')
+  @ApiBearerAuth('Admin')
+  @UseGuards(JwtAuthGuard)
+  @Get('user/:username')
+  async getPostsByUsername(@Param() params: GetUserPostsDto) {
+    return this.postService.getUserPosts(params.username);
   }
 
   @ApiBearerAuth('User')

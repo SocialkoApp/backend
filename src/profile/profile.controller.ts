@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   UploadedFile,
@@ -15,6 +16,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserId } from 'src/user/user.decorator';
 import { ProfileService } from './profile.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { GetProfileDto } from './dto/getProfile.dto';
 
 @ApiTags('Profile')
 @Controller('profile')
@@ -27,6 +29,14 @@ export class ProfileController {
   @Get()
   getPublicProfile(@UserId() id: number) {
     return this.profileService.getPublicProfile(id);
+  }
+
+  @ApiBearerAuth('User')
+  @ApiBearerAuth('Admin')
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  getSpecificPublicProfile(@Param() params: GetProfileDto) {
+    return this.profileService.getPublicProfile(parseInt(params.id));
   }
 
   @ApiBearerAuth('User')
