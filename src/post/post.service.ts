@@ -24,6 +24,7 @@ export class PostService {
     id: true,
     upvotes: true,
     downvotes: true,
+    description: true,
     author: {
       select: {
         id: true,
