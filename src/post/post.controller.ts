@@ -25,6 +25,14 @@ export class PostController {
   @ApiBearerAuth('User')
   @ApiBearerAuth('Admin')
   @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getMyPosts(@UserId() id: number) {
+    return this.postService.getMyPosts(id);
+  }
+
+  @ApiBearerAuth('User')
+  @ApiBearerAuth('Admin')
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getPostById(@Param() params: GetPostDto) {
     return this.postService.getPost(params.id);

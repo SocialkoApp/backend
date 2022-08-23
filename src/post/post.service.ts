@@ -128,6 +128,25 @@ export class PostService {
     }
   }
 
+  async getMyPosts(id: number) {
+    const { profileId } = await this.userService.find({ id });
+
+    try {
+      const posts = await this.prisma.post.findMany({
+        where: {
+          author: {
+            id: profileId
+          },
+        },
+        select: this.public,
+      });
+
+      return posts;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
   async check(id: number) {
     if (!(await this.prisma.post.findUnique({ where: { id } }))) {
       throw new NotFoundException('This post does not exist');
