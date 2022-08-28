@@ -53,6 +53,9 @@ model Profile {
 
   bio String?
 
+  upvoted   Upvote[]
+  downvoted Downvote[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
@@ -74,8 +77,8 @@ model Post {
   image   PublicFile? @relation(fields: [imageId], references: [id])
   imageId Int?
 
-  upvotes     Int     @default(0)
-  downvotes   Int     @default(0)
+  upvotes     Upvote[]
+  downvotes   Downvote[]
   description String?
 
   author   Profile? @relation(fields: [authorId], references: [id])
@@ -83,6 +86,28 @@ model Post {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Upvote {
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId Int     @map("profile_id")
+
+  post   Post @relation(fields: [postId], references: [id])
+  postId Int  @map("post_id")
+
+  @@id([profileId, postId])
+  @@map("post_upvote")
+}
+
+model Downvote {
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId Int
+
+  post   Post @relation(fields: [postId], references: [id])
+  postId Int
+
+  @@id([profileId, postId])
+  @@map("post_downvote")
 }
 
 model Story {

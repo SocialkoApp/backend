@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
@@ -20,10 +21,40 @@ export class PostService {
 
   private readonly logger: Logger = new Logger(PostService.name);
 
+  private profile: Prisma.ProfileSelect = {
+    id: true,
+    firstName: true,
+    lastName: true,
+    bio: true,
+    user: {
+      select: {
+        username: true,
+      },
+    },
+    profilePicture: {
+      select: {
+        url: true,
+      },
+    },
+    updatedAt: true,
+  };
+
   private public: Prisma.PostSelect = {
     id: true,
-    upvotes: true,
-    downvotes: true,
+    upvotes: {
+      select: {
+        profile: {
+          select: this.profile,
+        },
+      },
+    },
+    downvotes: {
+      select: {
+        profile: {
+          select: this.profile,
+        },
+      },
+    },
     description: true,
     author: {
       select: {
@@ -135,7 +166,7 @@ export class PostService {
       const posts = await this.prisma.post.findMany({
         where: {
           author: {
-            id: profileId
+            id: profileId,
           },
         },
         select: this.public,
@@ -145,6 +176,108 @@ export class PostService {
     } catch (e) {
       this.handleException(e);
     }
+  }
+
+  async upvotePost(id: number, postIdd: string) {
+    const { profileId } = await this.userService.find({ id });
+
+    const postId: number = parseInt(postIdd);
+
+    this.check(postId);
+
+    try {
+      const post = await this.prisma.post.update({
+        where: {
+          id: postId,
+        },
+        data: {
+          upvotes: {
+            create: {
+              profileId,
+            },
+          },
+        },
+        select: this.public,
+      });
+
+      return post;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async downvotePost(id: number, postIdd: string) {
+    const { profileId } = await this.userService.find({ id });
+
+    const postId: number = parseInt(postIdd);
+
+    this.check(postId);
+
+    try {
+      const post = await this.prisma.post.update({
+        where: {
+          id: postId,
+        },
+        data: {
+          downvotes: {
+            create: {
+              profileId,
+            },
+          },
+        },
+        select: this.public,
+      });
+
+      return post;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async checkUpvoted(id: number, postIdd: string) {
+    const { profileId } = await this.userService.find({ id });
+
+    const postId: number = parseInt(postIdd);
+
+    if (
+      await this.prisma.post.findFirst({
+        where: {
+          id: postId,
+          upvotes: {
+            some: {
+              profileId: profileId,
+            },
+          },
+        },
+      })
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  async checkDownvoted(id: number, postIdd: string) {
+    const { profileId } = await this.userService.find({ id });
+
+    const postId: number = parseInt(postIdd);
+
+    if (
+      await this.prisma.post.findFirst({
+        where: {
+          id: postId,
+          downvotes: {
+            some: {
+              profileId: profileId,
+            },
+          },
+        },
+      })
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   async check(id: number) {
