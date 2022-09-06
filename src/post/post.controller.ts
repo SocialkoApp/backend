@@ -71,9 +71,6 @@ export class PostController {
   @UseGuards(JwtAuthGuard)
   @Put('upvote/:id')
   async upvotePost(@UserId() id: number, @Param() params: UpDownvotePostDto) {
-    if (this.postService.checkUpvoted(id, params.id)) {
-      throw new ConflictException('You have already upvoted this post');
-    }
     return this.postService.upvotePost(id, params.id);
   }
 
@@ -82,9 +79,6 @@ export class PostController {
   @UseGuards(JwtAuthGuard)
   @Put('downvote/:id')
   async downvotePost(@UserId() id: number, @Param() params: UpDownvotePostDto) {
-    if (this.postService.checkDownvoted(id, params.id)) {
-      throw new ConflictException('You have already downvoted this post');
-    }
     return this.postService.downvotePost(id, params.id);
   }
 

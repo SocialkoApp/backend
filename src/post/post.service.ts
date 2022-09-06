@@ -185,18 +185,28 @@ export class PostService {
 
     this.check(postId);
 
+    const upvoted: boolean = await this.checkUpvoted(id, postIdd);
+
     try {
       const post = await this.prisma.post.update({
         where: {
           id: postId,
         },
-        data: {
-          upvotes: {
-            create: {
-              profileId,
+        data: upvoted
+          ? {
+              upvotes: {
+                delete: {
+                  profileId_postId: { profileId, postId },
+                },
+              },
+            }
+          : {
+              upvotes: {
+                create: {
+                  profileId,
+                },
+              },
             },
-          },
-        },
         select: this.public,
       });
 
@@ -213,18 +223,28 @@ export class PostService {
 
     this.check(postId);
 
+    const downvoted: boolean = await this.checkDownvoted(id, postIdd);
+
     try {
       const post = await this.prisma.post.update({
         where: {
           id: postId,
         },
-        data: {
-          downvotes: {
-            create: {
-              profileId,
+        data: downvoted
+          ? {
+              downvotes: {
+                delete: {
+                  profileId_postId: { profileId, postId },
+                },
+              },
+            }
+          : {
+              downvotes: {
+                create: {
+                  profileId,
+                },
+              },
             },
-          },
-        },
         select: this.public,
       });
 
