@@ -186,6 +186,11 @@ export class PostService {
     this.check(postId);
 
     const upvoted: boolean = await this.checkUpvoted(id, postIdd);
+    const downvoted: boolean = await this.checkDownvoted(id, postIdd);
+
+    if (downvoted) {
+      await this.downvotePost(id, postIdd);
+    }
 
     try {
       const post = await this.prisma.post.update({
@@ -224,6 +229,11 @@ export class PostService {
     this.check(postId);
 
     const downvoted: boolean = await this.checkDownvoted(id, postIdd);
+    const upvoted: boolean = await this.checkUpvoted(id, postIdd);
+
+    if (upvoted) {
+      await this.upvotePost(id, postIdd);
+    }
 
     try {
       const post = await this.prisma.post.update({
