@@ -16,7 +16,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserId } from 'src/user/user.decorator';
 import { ProfileService } from './profile.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { GetProfileDto } from './dto/getProfile.dto';
+import { GetProfileDto } from './dto/get-profile.dto';
 
 @ApiTags('Profile')
 @Controller('profile')

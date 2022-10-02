@@ -1,5 +1,5 @@
-import { UpDownvotePostDto } from './dto/upvoteDownvotePost.dto';
-import { GetUserPostsDto } from './dto/getPosts.dto';
+import { VotePostDto } from './dto/vote-post.dto';
+import { GetUserPostsDto } from './dto/get-posts.dto';
 import { CreatePostDto } from './dto/create.dto';
 import {
   Body,
@@ -17,7 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { PostService } from './post.service';
-import { GetPostDto } from './dto/getPost.dto';
+import { GetPostDto } from './dto/get-post.dto';
 import { UserId } from 'src/user/user.decorator';
 import { identity } from 'rxjs';
 
@@ -70,7 +70,7 @@ export class PostController {
   @ApiBearerAuth('Admin')
   @UseGuards(JwtAuthGuard)
   @Put('upvote/:id')
-  async upvotePost(@UserId() id: number, @Param() params: UpDownvotePostDto) {
+  async upvotePost(@UserId() id: number, @Param() params: VotePostDto) {
     return this.postService.upvotePost(id, params.id);
   }
 
@@ -78,7 +78,7 @@ export class PostController {
   @ApiBearerAuth('Admin')
   @UseGuards(JwtAuthGuard)
   @Put('downvote/:id')
-  async downvotePost(@UserId() id: number, @Param() params: UpDownvotePostDto) {
+  async downvotePost(@UserId() id: number, @Param() params: VotePostDto) {
     return this.postService.downvotePost(id, params.id);
   }
 
