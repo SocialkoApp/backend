@@ -56,20 +56,23 @@ model Profile {
   upvoted   Upvote[]
   downvoted Downvote[]
 
+  following Follow[] @relation("Following")
+  followers Follow[] @relation("Followers")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
 
-// model Follow {
-//   follower   Profile @relation(fields: [followerId], references: [id])
-//   followerId Int
+model Follow {
+  follower   Profile @relation("Followers", fields: [followerId], references: [id])
+  followerId Int
 
-//   following   Profile @relation(fields: [followingId], references: [id])
-//   followingId Int
+  following   Profile @relation("Following", fields: [followingId], references: [id])
+  followingId Int
 
-//   @@id([followerId, followingId])
-//   @@map("follow")
-// }
+  @@id([followerId, followingId])
+  @@map("follow")
+}
 
 model Post {
   id Int @id @default(autoincrement())
