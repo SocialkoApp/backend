@@ -61,14 +61,14 @@ model Profile {
 }
 
 // model Follow {
-//   id          Int  @id @default(autoincrement())
-//   follower    User @relation(name: "Followers", fields: [followerId], references: [id])
-//   followerId  Int
-//   following   User @relation(name: "Following", fields: [followingId], references: [id])
+//   follower   Profile @relation(fields: [followerId], references: [id])
+//   followerId Int
+
+//   following   Profile @relation(fields: [followingId], references: [id])
 //   followingId Int
 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @default(now()) @updatedAt
+//   @@id([followerId, followingId])
+//   @@map("follow")
 // }
 
 model Post {
