@@ -4,6 +4,10 @@
 
 <p align="center">Backend for Socialko, an open source social media app.</p>
 
+## Other repositories
+
+Other repositories regarding Socialko, can be found [here](https://github.com/SocialkoApp).
+
 ## Installation
 
 ```bash
