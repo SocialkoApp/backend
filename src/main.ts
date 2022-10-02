@@ -11,7 +11,7 @@ async function bootstrap() {
   app.enableCors();
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Socialko')
+    .setTitle(configService.get('SWAGGER_TITLE') ?? 'Socialko API')
     .setContact(
       configService.get('SWAGGER_CONTACT_NAME') ?? 'Aiken Tine Ahac',
       configService.get('SWAGGER_CONTACT_WEBSITE') ?? 'https://aikenahac.com',
