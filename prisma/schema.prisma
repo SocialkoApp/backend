@@ -16,7 +16,7 @@ model User {
   email    String @unique
   username String @unique
 
-  role Role @default(USER)
+  role Role @default(User)
 
   password String
 
@@ -33,9 +33,8 @@ model User {
 }
 
 enum Role {
-  USER
-  EDITOR
-  ADMIN
+  User
+  Admin
 }
 
 model Profile {
@@ -56,6 +55,8 @@ model Profile {
 
   upvoted   Upvote[]
   downvoted Downvote[]
+
+  cult CultMembership[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -106,9 +107,6 @@ model Story {
   image   PublicFile? @relation(fields: [imageId], references: [id])
   imageId String?
 
-  upvotes   Int @default(0)
-  downvotes Int @default(0)
-
   author   Profile? @relation(fields: [authorId], references: [id])
   authorId String?
 
@@ -116,9 +114,38 @@ model Story {
   updatedAt DateTime @default(now()) @updatedAt
 }
 
-// model Cult {
+model CultMembership {
+  role CultRole @default(Member)
 
-// }
+  member   Profile @relation(fields: [memberId], references: [id])
+  memberId String
+
+  cult   Cult   @relation(fields: [cultId], references: [id])
+  cultId String
+
+  @@id([cultId, memberId])
+  @@map("cult_membership")
+}
+
+enum CultRole {
+  Ruler
+  Member
+}
+
+model Cult {
+  id String @id @default(uuid())
+
+  name        String @unique
+  description String
+
+  members CultMembership[]
+
+  icon   PublicFile? @relation(fields: [iconId], references: [id])
+  iconId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
 
 model PublicFile {
   id String @id @default(uuid())
@@ -130,6 +157,8 @@ model PublicFile {
 
   post  Post[]
   story Story[]
+
+  cult Cult[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt

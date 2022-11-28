@@ -35,7 +35,7 @@ export class FilesController {
       },
     },
   })
-  @UseGuards(RoleGuard(Role.ADMIN))
+  @UseGuards(RoleGuard(Role.Admin))
   @UseInterceptors(FilesInterceptor('files'))
   async upload(@UploadedFiles() files: Array<Express.Multer.File>) {
     for (const file of files) {
@@ -45,7 +45,7 @@ export class FilesController {
 
   @Delete(':id')
   @ApiBearerAuth('Admin')
-  @UseGuards(RoleGuard(Role.ADMIN))
+  @UseGuards(RoleGuard(Role.Admin))
   async delete(@Param('id') id: string) {
     return this.filesService.deletePublicFile(id);
   }
