@@ -46,7 +46,7 @@ export class FilesController {
   @Delete(':id')
   @ApiBearerAuth('Admin')
   @UseGuards(RoleGuard(Role.ADMIN))
-  async delete(@Param('id') id: number) {
-    return this.filesService.deletePublicFile(+id);
+  async delete(@Param('id') id: string) {
+    return this.filesService.deletePublicFile(id);
   }
 }

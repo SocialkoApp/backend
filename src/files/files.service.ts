@@ -34,7 +34,7 @@ export class FilesService {
     });
   }
 
-  async deletePrivateFile(fileId: number) {
+  async deletePrivateFile(fileId: string) {
     const file = await this.prisma.privateFile.findUnique({
       where: { id: fileId },
     });
@@ -77,7 +77,7 @@ export class FilesService {
     return file;
   }
 
-  async deletePublicFile(fileId: number) {
+  async deletePublicFile(fileId: string) {
     const file = await this.prisma.publicFile.findUnique({
       where: { id: fileId },
     });

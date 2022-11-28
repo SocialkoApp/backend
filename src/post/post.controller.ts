@@ -3,7 +3,6 @@ import { GetUserPostsDto } from './dto/get-posts.dto';
 import { CreatePostDto } from './dto/create.dto';
 import {
   Body,
-  ConflictException,
   Controller,
   Get,
   Param,
@@ -18,8 +17,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { PostService } from './post.service';
 import { GetPostDto } from './dto/get-post.dto';
-import { UserId } from 'src/user/user.decorator';
-import { identity } from 'rxjs';
+import { UserID } from 'src/user/user.decorator';
 
 @ApiTags('Post')
 @Controller('posts')
@@ -30,7 +28,7 @@ export class PostController {
   @ApiBearerAuth('Admin')
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async getMyPosts(@UserId() id: number) {
+  async getMyPosts(@UserID() id: string) {
     return this.postService.getMyPosts(id);
   }
 
@@ -54,7 +52,7 @@ export class PostController {
   @ApiBearerAuth('Admin')
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getPosts(@UserId() id: number) {
+  async getPosts(@UserID() id: string) {
     return this.postService.getPosts(id);
   }
 
@@ -62,7 +60,7 @@ export class PostController {
   @ApiBearerAuth('Admin')
   @UseGuards(JwtAuthGuard)
   @Post()
-  async uploadPost(@UserId() id: number, @Body() body: CreatePostDto) {
+  async uploadPost(@UserID() id: string, @Body() body: CreatePostDto) {
     return this.postService.createPost(id, body);
   }
 
@@ -70,7 +68,7 @@ export class PostController {
   @ApiBearerAuth('Admin')
   @UseGuards(JwtAuthGuard)
   @Put('upvote/:id')
-  async upvotePost(@UserId() id: number, @Param() params: VotePostDto) {
+  async upvotePost(@UserID() id: string, @Param() params: VotePostDto) {
     return this.postService.upvotePost(id, params.id);
   }
 
@@ -78,7 +76,7 @@ export class PostController {
   @ApiBearerAuth('Admin')
   @UseGuards(JwtAuthGuard)
   @Put('downvote/:id')
-  async downvotePost(@UserId() id: number, @Param() params: VotePostDto) {
+  async downvotePost(@UserID() id: string, @Param() params: VotePostDto) {
     return this.postService.downvotePost(id, params.id);
   }
 

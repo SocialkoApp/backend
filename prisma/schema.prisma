@@ -7,11 +7,12 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native"]
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
+  id       String @id @default(uuid())
   email    String @unique
   username String @unique
 
@@ -25,7 +26,7 @@ model User {
   forgotPasswordToken String?
 
   profile   Profile? @relation(fields: [profileId], references: [id])
-  profileId Int?     @unique
+  profileId String?  @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -38,7 +39,7 @@ enum Role {
 }
 
 model Profile {
-  id Int @id @default(autoincrement())
+  id String @id @default(uuid())
 
   firstName String?
   lastName  String?
@@ -49,43 +50,29 @@ model Profile {
   stories Story[]
 
   profilePicture   PublicFile? @relation(fields: [profilePictureId], references: [id])
-  profilePictureId Int?
+  profilePictureId String?
 
   bio String?
 
   upvoted   Upvote[]
   downvoted Downvote[]
 
-  following Follow[] @relation("Following")
-  followers Follow[] @relation("Followers")
-
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
 
-model Follow {
-  follower   Profile @relation("Followers", fields: [followerId], references: [id])
-  followerId Int
-
-  following   Profile @relation("Following", fields: [followingId], references: [id])
-  followingId Int
-
-  @@id([followerId, followingId])
-  @@map("follow")
-}
-
 model Post {
-  id Int @id @default(autoincrement())
+  id String @id @default(uuid())
 
   image   PublicFile? @relation(fields: [imageId], references: [id])
-  imageId Int?
+  imageId String?
 
   upvotes     Upvote[]
   downvotes   Downvote[]
   description String?
 
   author   Profile? @relation(fields: [authorId], references: [id])
-  authorId Int?
+  authorId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -93,10 +80,10 @@ model Post {
 
 model Upvote {
   profile   Profile @relation(fields: [profileId], references: [id])
-  profileId Int     @map("profile_id")
+  profileId String  @map("profile_id")
 
-  post   Post @relation(fields: [postId], references: [id])
-  postId Int  @map("post_id")
+  post   Post   @relation(fields: [postId], references: [id])
+  postId String @map("post_id")
 
   @@id([profileId, postId])
   @@map("post_upvote")
@@ -104,33 +91,37 @@ model Upvote {
 
 model Downvote {
   profile   Profile @relation(fields: [profileId], references: [id])
-  profileId Int
+  profileId String
 
-  post   Post @relation(fields: [postId], references: [id])
-  postId Int
+  post   Post   @relation(fields: [postId], references: [id])
+  postId String
 
   @@id([profileId, postId])
   @@map("post_downvote")
 }
 
 model Story {
-  id Int @id @default(autoincrement())
+  id String @id @default(uuid())
 
   image   PublicFile? @relation(fields: [imageId], references: [id])
-  imageId Int?
+  imageId String?
 
   upvotes   Int @default(0)
   downvotes Int @default(0)
 
   author   Profile? @relation(fields: [authorId], references: [id])
-  authorId Int?
+  authorId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
 
+// model Cult {
+
+// }
+
 model PublicFile {
-  id Int @id @default(autoincrement())
+  id String @id @default(uuid())
 
   url String
   key String @unique
@@ -145,8 +136,7 @@ model PublicFile {
 }
 
 model PrivateFile {
-  id Int @id @default(autoincrement())
-
+  id  String @id @default(uuid())
   url String
   key String @unique
 

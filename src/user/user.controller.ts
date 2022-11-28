@@ -14,7 +14,7 @@ import { PublicFilter } from 'src/utils/filter.interceptor';
 import { RegisterDto } from './dto/register.dto';
 import { UpdatePublicUserDto } from './dto/update-public-user.dto';
 import { PublicUser } from './models/public-user.model';
-import { UserId } from './user.decorator';
+import { UserID } from './user.decorator';
 import { UserService } from './user.service';
 
 @ApiTags('Users Endpoint')
@@ -42,7 +42,7 @@ export class UserController {
   @ApiBearerAuth('User')
   @UseInterceptors(PublicFilter(PublicUser))
   @Get('me')
-  getPublicUser(@UserId() id: number) {
+  getPublicUser(@UserID() id: string) {
     return this.userService.findPublic({ id });
   }
 
@@ -54,7 +54,7 @@ export class UserController {
   @ApiBearerAuth('User')
   @UseGuards(JwtAuthGuard)
   @Put()
-  updateUser(@UserId() id: number, @Body() updateUserDto: UpdatePublicUserDto) {
+  updateUser(@UserID() id: string, @Body() updateUserDto: UpdatePublicUserDto) {
     return this.userService.updatePublic(id, updateUserDto);
   }
 }

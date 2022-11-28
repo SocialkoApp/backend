@@ -89,7 +89,7 @@ export class PostService {
     }
   }
 
-  async createPost(id: number, { description, imageId }: CreatePostDto) {
+  async createPost(id: string, { description, imageId }: CreatePostDto) {
     const { profileId } = await this.userService.find({ id });
     try {
       const post = await this.prisma.post.create({
@@ -108,11 +108,10 @@ export class PostService {
   }
 
   async getPost(id: string) {
-    const postId = parseInt(id);
-    this.check(postId);
+    this.check(id);
     try {
       const post = await this.prisma.post.findUnique({
-        where: { id: postId },
+        where: { id },
         select: this.public,
       });
 
@@ -123,7 +122,7 @@ export class PostService {
   }
 
   // Get all posts that weren't posted by you
-  async getPosts(id: number) {
+  async getPosts(id: string) {
     const { profileId } = await this.userService.find({ id });
 
     try {
@@ -159,7 +158,7 @@ export class PostService {
     }
   }
 
-  async getMyPosts(id: number) {
+  async getMyPosts(id: string) {
     const { profileId } = await this.userService.find({ id });
 
     try {
@@ -178,18 +177,16 @@ export class PostService {
     }
   }
 
-  async upvotePost(id: number, postIdd: string) {
+  async upvotePost(id: string, postId: string) {
     const { profileId } = await this.userService.find({ id });
-
-    const postId: number = parseInt(postIdd);
 
     this.check(postId);
 
-    const upvoted: boolean = await this.checkUpvoted(id, postIdd);
-    const downvoted: boolean = await this.checkDownvoted(id, postIdd);
+    const upvoted: boolean = await this.checkUpvoted(id, postId);
+    const downvoted: boolean = await this.checkDownvoted(id, postId);
 
     if (downvoted) {
-      await this.downvotePost(id, postIdd);
+      await this.downvotePost(id, postId);
     }
 
     try {
@@ -221,18 +218,16 @@ export class PostService {
     }
   }
 
-  async downvotePost(id: number, postIdd: string) {
+  async downvotePost(id: string, postId: string) {
     const { profileId } = await this.userService.find({ id });
-
-    const postId: number = parseInt(postIdd);
 
     this.check(postId);
 
-    const downvoted: boolean = await this.checkDownvoted(id, postIdd);
-    const upvoted: boolean = await this.checkUpvoted(id, postIdd);
+    const downvoted: boolean = await this.checkDownvoted(id, postId);
+    const upvoted: boolean = await this.checkUpvoted(id, postId);
 
     if (upvoted) {
-      await this.upvotePost(id, postIdd);
+      await this.upvotePost(id, postId);
     }
 
     try {
@@ -264,10 +259,8 @@ export class PostService {
     }
   }
 
-  async checkUpvoted(id: number, postIdd: string) {
+  async checkUpvoted(id: string, postId: string) {
     const { profileId } = await this.userService.find({ id });
-
-    const postId: number = parseInt(postIdd);
 
     if (
       await this.prisma.post.findFirst({
@@ -287,10 +280,8 @@ export class PostService {
     return false;
   }
 
-  async checkDownvoted(id: number, postIdd: string) {
+  async checkDownvoted(id: string, postId: string) {
     const { profileId } = await this.userService.find({ id });
-
-    const postId: number = parseInt(postIdd);
 
     if (
       await this.prisma.post.findFirst({
@@ -310,7 +301,7 @@ export class PostService {
     return false;
   }
 
-  async check(id: number) {
+  async check(id: string) {
     if (!(await this.prisma.post.findUnique({ where: { id } }))) {
       throw new NotFoundException('This post does not exist');
     }

@@ -14,5 +14,5 @@ export class CreatePostDto {
     example: 1,
   })
   @IsInt()
-  imageId: number;
+  imageId: string;
 }

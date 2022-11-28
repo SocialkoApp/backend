@@ -1,3 +1,3 @@
 export class GetProfileDto {
-  id: string;
+  username: string;
 }

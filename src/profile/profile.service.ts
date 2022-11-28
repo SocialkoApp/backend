@@ -39,7 +39,7 @@ export class ProfileService {
     updatedAt: true,
   };
 
-  async getPublicProfile(id: number) {
+  async getMyProfile(id: string) {
     const { profileId } = await this.userService.find({ id });
 
     try {
@@ -54,7 +54,22 @@ export class ProfileService {
     }
   }
 
-  async updateProfile(id: number, updateProfileDto: UpdateProfileDto) {
+  async getPublicProfile(username: string) {
+    const { profileId } = await this.userService.find({ username });
+
+    try {
+      const profile = await this.prisma.profile.findUnique({
+        where: { id: profileId },
+        select: this.public,
+      });
+
+      return profile;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async updateProfile(id: string, updateProfileDto: UpdateProfileDto) {
     const { profileId } = await this.userService.find({ id });
 
     try {
@@ -70,7 +85,7 @@ export class ProfileService {
     }
   }
 
-  async updateProfilePicture(id: number, buffer: Buffer, filename: string) {
+  async updateProfilePicture(id: string, buffer: Buffer, filename: string) {
     const { profileId } = await this.userService.find({ id });
     const file = await this.filesService.uploadPublicFile(buffer, filename);
 
@@ -89,7 +104,7 @@ export class ProfileService {
     }
   }
 
-  async deleteProfilePicture(id: number) {
+  async deleteProfilePicture(id: string) {
     const { profileId } = await this.userService.find({ id });
 
     const profile = await this.prisma.profile.findUnique({
@@ -99,7 +114,7 @@ export class ProfileService {
     if (!profile.profilePictureId) {
       throw new NotFoundException('No profile picture found');
     }
-
+    12;
     try {
       const update = await this.prisma.profile.update({
         where: {

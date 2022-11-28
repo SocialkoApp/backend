@@ -47,7 +47,7 @@ export class UserService {
     return user;
   }
 
-  async updatePublic(id: number, updateUserDto: UpdatePublicUserDto) {
+  async updatePublic(id: string, updateUserDto: UpdatePublicUserDto) {
     let hashedPassword;
     if (updateUserDto.password) {
       hashedPassword = await this.hashPassword(
@@ -131,7 +131,7 @@ export class UserService {
     return user;
   }
 
-  async findById(userId: number) {
+  async findById(userId: string) {
     return this.find({ id: userId });
   }
 
@@ -170,7 +170,7 @@ export class UserService {
     return result;
   }
 
-  async delete(id: number) {
+  async delete(id: string) {
     await this.check({ id });
     return this.prisma.user.delete({
       where: { id },

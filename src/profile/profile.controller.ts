@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { UserId } from 'src/user/user.decorator';
+import { UserID } from 'src/user/user.decorator';
 import { ProfileService } from './profile.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetProfileDto } from './dto/get-profile.dto';
@@ -27,16 +27,16 @@ export class ProfileController {
   @ApiBearerAuth('Admin')
   @UseGuards(JwtAuthGuard)
   @Get()
-  getPublicProfile(@UserId() id: number) {
-    return this.profileService.getPublicProfile(id);
+  getPublicProfile(@UserID() id: string) {
+    return this.profileService.getMyProfile(id);
   }
 
   @ApiBearerAuth('User')
   @ApiBearerAuth('Admin')
   @UseGuards(JwtAuthGuard)
-  @Get(':id')
+  @Get(':username')
   getSpecificPublicProfile(@Param() params: GetProfileDto) {
-    return this.profileService.getPublicProfile(parseInt(params.id));
+    return this.profileService.getPublicProfile(params.username);
   }
 
   @ApiBearerAuth('User')
@@ -44,7 +44,7 @@ export class ProfileController {
   @UseGuards(JwtAuthGuard)
   @Put()
   updateProfile(
-    @UserId() id: number,
+    @UserID() id: string,
     @Body() profileUpdateDto: UpdateProfileDto,
   ) {
     return this.profileService.updateProfile(id, profileUpdateDto);
@@ -56,7 +56,7 @@ export class ProfileController {
   @UseInterceptors(FileInterceptor('file'))
   @Post('profile-picture')
   updateProfilePicture(
-    @UserId() id: number,
+    @UserID() id: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.profileService.updateProfilePicture(
@@ -70,7 +70,7 @@ export class ProfileController {
   @ApiBearerAuth('Admin')
   @UseGuards(JwtAuthGuard)
   @Delete('profile-picture')
-  deleteProfilePicture(@UserId() id: number) {
+  deleteProfilePicture(@UserID() id: string) {
     return this.profileService.deleteProfilePicture(id);
   }
 }

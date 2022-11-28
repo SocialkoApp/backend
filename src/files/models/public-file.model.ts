@@ -3,7 +3,7 @@ import { PublicFile as PrismaPublicFile } from '@prisma/client';
 
 export class PublicFile implements PrismaPublicFile {
   @ApiHideProperty()
-  id: number;
+  id: string;
 
   url: string;
 

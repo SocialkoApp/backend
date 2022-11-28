@@ -2,7 +2,7 @@ import { Profile, Role, User } from '@prisma/client';
 import { Expose } from 'class-transformer';
 
 export class PublicUser implements User {
-  id: number;
+  id: string;
   role: Role;
 
   forgotPasswordToken: string;
@@ -28,7 +28,7 @@ export class PublicUser implements User {
 
   @Expose()
   profile: Profile;
-  profileId: number;
+  profileId: string;
 
   @Expose()
   createdAt: Date;

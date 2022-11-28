@@ -18,7 +18,7 @@ export class UpdateProfileDto {
 
   @ApiProperty({
     name: 'bio',
-    example: "'03 | Vegova | Full-Stack Developer | @aerio.tech",
+    example: "'Amazon CEO and Founder.",
   })
   @IsString()
   bio?: string;
