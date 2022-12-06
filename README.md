@@ -50,7 +50,7 @@ SWAGGER_TAG="socialko"
 
 ## API Documentation
 
-API documentation is available on the `/api` endpoint when running the backend locally.
+API documentation is available on the `/api` endpoint.
 
 ## Running the app
 

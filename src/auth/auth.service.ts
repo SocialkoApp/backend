@@ -27,7 +27,7 @@ export class AuthService {
         const { password, ...result } = user;
         if (!user.emailConfirmed) {
           this.logger.verbose(
-            `${authLoginDto.username} tried to login but didn't have email confirmed`,
+            `${authLoginDto.username} tried to login but didn't have a confirmed email`,
           );
           throw new ForbiddenException(`Email not confirmed`);
         }

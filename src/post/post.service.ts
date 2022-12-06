@@ -301,7 +301,7 @@ export class PostService {
     return false;
   }
 
-  async check(id: string) {
+  private async check(id: string) {
     if (!(await this.prisma.post.findUnique({ where: { id } }))) {
       throw new NotFoundException('This post does not exist');
     }

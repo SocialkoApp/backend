@@ -1,4 +1,3 @@
-import { Role } from '.prisma/client';
 import {
   Controller,
   Delete,
@@ -10,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import { RoleGuard } from 'src/role/role.guard';
 import { FilesService } from './files.service';
 

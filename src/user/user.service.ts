@@ -79,6 +79,7 @@ export class UserService {
   }: RegisterDto) {
     const hashedPassword = await this.hashPassword(password);
 
+    this.validateUsername(username);
     try {
       const user = await this.prisma.user.create({
         data: {
@@ -180,6 +181,14 @@ export class UserService {
   async check(user: Prisma.UserWhereUniqueInput) {
     if (!(await this.prisma.user.findUnique({ where: user }))) {
       throw new NotFoundException('This user does not exist');
+    }
+  }
+
+  validateUsername(username: string) {
+    const regex: RegExp = /^[a-z0-9_.-]{4,16}$/;
+
+    if (!regex.test(username)) {
+      return new BadRequestException('Invalid username');
     }
   }
 

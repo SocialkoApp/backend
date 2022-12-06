@@ -10,6 +10,9 @@ import { ProfileModule } from './profile/profile.module';
 import { FilesModule } from './files/files.module';
 import { RoleModule } from './role/role.module';
 import { PostModule } from './post/post.module';
+import { CultController } from './cult/cult.controller';
+import { CultService } from './cult/cult.service';
+import { CultModule } from './cult/cult.module';
 
 @Module({
   imports: [
@@ -26,6 +29,9 @@ import { PostModule } from './post/post.module';
     FilesModule,
     RoleModule,
     PostModule,
+    CultModule,
   ],
+  controllers: [CultController],
+  providers: [CultService],
 })
 export class AppModule {}
