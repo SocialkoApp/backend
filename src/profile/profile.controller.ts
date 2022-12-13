@@ -28,7 +28,7 @@ export class ProfileController {
   @UseGuards(JwtAuthGuard)
   @Get()
   getPublicProfile(@UserID() id: string) {
-    return this.profileService.getMyProfile(id);
+    return this.profileService.getProfileById(id);
   }
 
   @ApiBearerAuth('User')

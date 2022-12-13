@@ -23,7 +23,7 @@ specifiers:
   '@types/supertest': ^2.0.11
   '@typescript-eslint/eslint-plugin': ^5.0.0
   '@typescript-eslint/parser': ^5.0.0
-  aws-sdk: ^2.1189.0
+  aws-sdk: ^2.1273.0
   bcrypt: ^5.0.1
   class-transformer: ^0.5.1
   class-validator: ^0.13.2
@@ -64,7 +64,7 @@ dependencies:
   '@nestjs/swagger': 6.1.3_zvabycmw733xee3ikaxv4c7mny
   '@ory/kratos-client': 0.10.1
   '@prisma/client': 4.7.1_prisma@4.7.1
-  aws-sdk: 2.1267.0
+  aws-sdk: 2.1273.0
   bcrypt: 5.1.0
   class-transformer: 0.5.1
   class-validator: 0.13.2
@@ -1903,8 +1903,8 @@ packages:
     engines: {node: '>= 0.4'}
     dev: false
 
-  /aws-sdk/2.1267.0:
-    resolution: {integrity: sha512-ANTtRay26WwNRbYs6eZYN71b3DURNfWaq3AD6BtVNa8fVvnSLn+NNINw2+vLRjDLPZXMAQVHm0qH/TmyBvtjRA==}
+  /aws-sdk/2.1273.0:
+    resolution: {integrity: sha512-QF37fm1DfUxjw+IJtDMTDBckVwAOf8EHQjs4NxJp5TtRkeqtWkxNzq/ViI8kAS+0n8JZaom8Oenmy8ufGfLMAQ==}
     engines: {node: '>= 10.0.0'}
     dependencies:
       buffer: 4.9.2
@@ -2115,7 +2115,7 @@ packages:
     resolution: {integrity: sha512-xq+q3SRMOxGivLhBNaUdC64hDTQwejJ+H0T/NB1XMtTVEwNTrfFF3gAxiyW0Bu/xWEGhjVKgUcMhCrUy2+uCWg==}
     dependencies:
       base64-js: 1.5.1
-      ieee754: 1.1.13
+      ieee754: 1.2.1
       isarray: 1.0.0
     dev: false
 
@@ -3657,7 +3657,6 @@ packages:
 
   /ieee754/1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
-    dev: true
 
   /ignore/5.2.1:
     resolution: {integrity: sha512-d2qQLzTJ9WxQftPAuEQpSPmKqzxePjzVbpAVv62AQ64NTL+wR4JkrVqR/LqFsFEUsHDAiId52mJteHDFuDkElA==}

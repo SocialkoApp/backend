@@ -11,7 +11,7 @@ Other repositories regarding Socialko, can be found [here](https://github.com/So
 ## Installation
 
 ```bash
-npm install
+pnpm install
 ```
 
 ## Environment variables
@@ -56,24 +56,24 @@ API documentation is available on the `/api` endpoint.
 
 ```bash
 # development
-$ npm run start
+$ pnpm start
 
 # watch mode
-$ npm run start:dev
+$ pnpm start:dev
 
 # production mode
-$ npm run start:prod
+$ pnpm start:prod
 ```
 
 ## Test
 
 ```bash
 # unit tests
-$ npm run test
+$ pnpm test
 
 # e2e tests
-$ npm run test:e2e
+$ pnpm test:e2e
 
 # test coverage
-$ npm run test:cov
+$ pnpm test:cov
 ```

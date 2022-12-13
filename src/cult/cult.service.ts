@@ -4,9 +4,10 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { CultRole, Prisma } from '@prisma/client';
 import { FilesService } from 'src/files/files.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ProfileService } from 'src/profile/profile.service';
 import { UserService } from 'src/user/user.service';
 import { CreateCultDto } from './dto/create.dto';
 
@@ -16,6 +17,7 @@ export class CultService {
     private readonly prisma: PrismaService,
     private readonly filesService: FilesService,
     private readonly userService: UserService,
+    private readonly profileService: ProfileService,
   ) {}
 
   private readonly logger: Logger = new Logger(CultService.name);
@@ -62,7 +64,9 @@ export class CultService {
     },
   };
 
-  async createCult({ name, description, iconId }: CreateCultDto) {
+  async createCult(id: string, { name, description, iconId }: CreateCultDto) {
+    const { profileId } = await this.userService.find({ id });
+
     this.validateCultName(name);
 
     try {
@@ -71,12 +75,20 @@ export class CultService {
           name,
           description,
           iconId,
+          members: {
+            create: {
+              memberId: profileId,
+              role: CultRole.Ruler,
+            },
+          },
         },
       });
 
       this.logger.verbose(`The cult ${name} has been created`);
 
       this.logger.verbose(cult);
+
+      return cult;
     } catch (e) {
       this.handleException(e);
     }
@@ -92,6 +104,42 @@ export class CultService {
     } catch (e) {
       this.handleException(e);
     }
+  }
+
+  async find(id: string, name: string) {
+    const { profileId } = await this.userService.find({ id });
+
+    try {
+      let cult = await this.prisma.cult.findUnique({
+        where: {
+          name,
+        },
+        select: this.cultPrivate,
+      });
+
+      if (this.isMember(profileId, cult.id)) {
+        cult = await this.prisma.cult.findUnique({
+          where: {
+            name,
+          },
+          select: this.cult,
+        });
+      }
+
+      return cult;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async isMember(id: string, cultId: string) {
+    const profile = await this.profileService.getProfileById(id);
+
+    if (profile.cult.cultId === cultId) {
+      return true;
+    }
+
+    return false;
   }
 
   private validateCultName(name: string) {

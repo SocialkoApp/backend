@@ -39,7 +39,7 @@ export class ProfileService {
     updatedAt: true,
   };
 
-  async getMyProfile(id: string) {
+  async getProfileById(id: string) {
     const { profileId } = await this.userService.find({ id });
 
     try {

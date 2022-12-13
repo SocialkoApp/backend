@@ -56,7 +56,7 @@ model Profile {
   upvoted   Upvote[]
   downvoted Downvote[]
 
-  cult CultMembership[]
+  cult CultMembership?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -118,7 +118,7 @@ model CultMembership {
   role CultRole @default(Member)
 
   member   Profile @relation(fields: [memberId], references: [id])
-  memberId String
+  memberId String  @unique
 
   cult   Cult   @relation(fields: [cultId], references: [id])
   cultId String
