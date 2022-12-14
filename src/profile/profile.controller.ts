@@ -17,30 +17,31 @@ import { UserID } from 'src/user/user.decorator';
 import { ProfileService } from './profile.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetProfileDto } from './dto/get-profile.dto';
+import { Role } from '@prisma/client';
 
 @ApiTags('Profile')
 @Controller('profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  @ApiBearerAuth('User')
-  @ApiBearerAuth('Admin')
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
   @UseGuards(JwtAuthGuard)
   @Get()
   getPublicProfile(@UserID() id: string) {
-    return this.profileService.getProfileById(id);
+    return this.profileService.getProfileByUserId(id);
   }
 
-  @ApiBearerAuth('User')
-  @ApiBearerAuth('Admin')
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
   @UseGuards(JwtAuthGuard)
   @Get(':username')
   getSpecificPublicProfile(@Param() params: GetProfileDto) {
     return this.profileService.getPublicProfile(params.username);
   }
 
-  @ApiBearerAuth('User')
-  @ApiBearerAuth('Admin')
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
   @UseGuards(JwtAuthGuard)
   @Put()
   updateProfile(
@@ -50,8 +51,8 @@ export class ProfileController {
     return this.profileService.updateProfile(id, profileUpdateDto);
   }
 
-  @ApiBearerAuth('User')
-  @ApiBearerAuth('Admin')
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   @Post('profile-picture')
@@ -66,8 +67,8 @@ export class ProfileController {
     );
   }
 
-  @ApiBearerAuth('User')
-  @ApiBearerAuth('Admin')
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
   @UseGuards(JwtAuthGuard)
   @Delete('profile-picture')
   deleteProfilePicture(@UserID() id: string) {

@@ -20,7 +20,7 @@ import { FilesService } from './files.service';
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
-  @ApiBearerAuth('Admin')
+  @ApiBearerAuth(Role.Admin)
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -45,8 +45,8 @@ export class FilesController {
     }
   }
 
-  @ApiBearerAuth('User')
-  @ApiBearerAuth('Admin')
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   @Post()
@@ -54,7 +54,7 @@ export class FilesController {
     return this.filesService.uploadPublicFile(file.buffer, file.originalname);
   }
 
-  @ApiBearerAuth('Admin')
+  @ApiBearerAuth(Role.Admin)
   @UseGuards(RoleGuard(Role.Admin))
   @Delete(':id')
   async delete(@Param('id') id: string) {

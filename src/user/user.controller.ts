@@ -8,6 +8,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Public } from 'src/auth/public.decorator';
 import { PublicFilter } from 'src/utils/filter.interceptor';
@@ -39,7 +40,7 @@ export class UserController {
    * @param id Id of the user to find
    * @returns The user
    */
-  @ApiBearerAuth('User')
+  @ApiBearerAuth(Role.User)
   @UseInterceptors(PublicFilter(PublicUser))
   @Get('me')
   getPublicUser(@UserID() id: string) {
@@ -51,7 +52,7 @@ export class UserController {
    * @param updateUserDto Fields to update
    * @returns Updaed user
    */
-  @ApiBearerAuth('User')
+  @ApiBearerAuth(Role.User)
   @UseGuards(JwtAuthGuard)
   @Put()
   updateUser(@UserID() id: string, @Body() updateUserDto: UpdatePublicUserDto) {

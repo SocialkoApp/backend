@@ -114,15 +114,17 @@ export class CultService {
         where: {
           name,
         },
-        select: this.cultPrivate,
+        select: this.cult,
       });
 
-      if (this.isMember(profileId, cult.id)) {
+      const isMember = await this.checkMembership(profileId, cult.id);
+
+      if (isMember) {
         cult = await this.prisma.cult.findUnique({
           where: {
             name,
           },
-          select: this.cult,
+          select: this.cultPrivate,
         });
       }
 
@@ -132,11 +134,15 @@ export class CultService {
     }
   }
 
-  async isMember(id: string, cultId: string) {
-    const profile = await this.profileService.getProfileById(id);
+  async checkMembership(id: string, cultId: string) {
+    try {
+      const { cult } = await this.profileService.getProfileById(id);
 
-    if (profile.cult.cultId === cultId) {
-      return true;
+      if (cult.cultId === cultId) {
+        return true;
+      }
+    } catch (e) {
+      this.handleException(e);
     }
 
     return false;
@@ -156,7 +162,7 @@ export class CultService {
         case 'P2002':
           const conflictingField = error.meta['target'][0];
           throw new ConflictException(
-            `User with this ${conflictingField} already exists`,
+            `Cult with this ${conflictingField} already exists`,
           );
         default:
           this.logger.error(error);

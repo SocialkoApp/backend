@@ -36,15 +36,18 @@ export class ProfileService {
         url: true,
       },
     },
+    cult: {
+      select: {
+        cultId: true,
+      },
+    },
     updatedAt: true,
   };
 
   async getProfileById(id: string) {
-    const { profileId } = await this.userService.find({ id });
-
     try {
       const profile = await this.prisma.profile.findUnique({
-        where: { id: profileId },
+        where: { id },
         select: this.public,
       });
 
@@ -52,6 +55,12 @@ export class ProfileService {
     } catch (e) {
       this.handleException(e);
     }
+  }
+
+  async getProfileByUserId(id: string) {
+    const { profileId } = await this.userService.find({ id });
+
+    return this.getProfileById(profileId);
   }
 
   async getPublicProfile(username: string) {
