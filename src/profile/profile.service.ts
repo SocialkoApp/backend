@@ -44,10 +44,10 @@ export class ProfileService {
     updatedAt: true,
   };
 
-  async getProfileById(id: string) {
+  async find(input: Prisma.ProfileWhereUniqueInput) {
     try {
       const profile = await this.prisma.profile.findUnique({
-        where: { id },
+        where: input,
         select: this.public,
       });
 
@@ -60,7 +60,7 @@ export class ProfileService {
   async getProfileByUserId(id: string) {
     const { profileId } = await this.userService.find({ id });
 
-    return this.getProfileById(profileId);
+    return this.find({ id: profileId });
   }
 
   async getPublicProfile(username: string) {

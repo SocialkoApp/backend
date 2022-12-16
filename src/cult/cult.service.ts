@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   Logger,
 } from '@nestjs/common';
@@ -134,9 +135,42 @@ export class CultService {
     }
   }
 
+  async addToCult(id: string, username: string) {
+    // The profile of the user who is adding someone to the cult
+    const { cult } = await this.profileService.getProfileByUserId(id);
+
+    // The profile of the user we're adding to the cult
+    const addee = await this.userService.find({ username });
+
+    if (cult.role === CultRole.Member) {
+      return new ForbiddenException(
+        "You're not the ruler, so you can't add people",
+      );
+    }
+
+    try {
+      const add = await this.prisma.cult.update({
+        where: {
+          id: cult.cultId,
+        },
+        data: {
+          members: {
+            create: {
+              memberId: addee.profileId,
+            },
+          },
+        },
+      });
+
+      return add;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
   async checkMembership(id: string, cultId: string) {
     try {
-      const { cult } = await this.profileService.getProfileById(id);
+      const { cult } = await this.profileService.find({ id });
 
       if (cult.cultId === cultId) {
         return true;
