@@ -12,6 +12,11 @@ import { ProfileService } from 'src/profile/profile.service';
 import { UserService } from 'src/user/user.service';
 import { CreateCultDto } from './dto/create.dto';
 
+export enum Action {
+  Remove = 'remove',
+  Add = 'Add',
+}
+
 @Injectable()
 export class CultService {
   constructor(
@@ -135,7 +140,7 @@ export class CultService {
     }
   }
 
-  async addToCult(id: string, username: string) {
+  async manageMembership(id: string, username: string, action: Action) {
     // The profile of the user who is adding someone to the cult
     const { cult } = await this.profileService.getProfileByUserId(id);
 
@@ -154,11 +159,18 @@ export class CultService {
           id: cult.cultId,
         },
         data: {
-          members: {
-            create: {
-              memberId: addee.profileId,
-            },
-          },
+          members:
+            action === Action.Add
+              ? {
+                  create: {
+                    memberId: addee.profileId,
+                  },
+                }
+              : {
+                  delete: {
+                    memberId: addee.profileId,
+                  },
+                },
         },
       });
 

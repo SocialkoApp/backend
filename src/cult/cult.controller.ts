@@ -1,4 +1,4 @@
-import { CultService } from './cult.service';
+import { Action, CultService } from './cult.service';
 import {
   Body,
   Controller,
@@ -47,6 +47,18 @@ export class CultController {
   @UseGuards(JwtAuthGuard)
   @Put('cult/add/:username')
   async addCultMember(@UserID() id: string, @Param() params: AddMemberDto) {
-    return this.cultService.addToCult(id, params.username);
+    return this.cultService.manageMembership(id, params.username, Action.Add);
+  }
+
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
+  @UseGuards(JwtAuthGuard)
+  @Put('cult/remove/:username')
+  async removeCultMember(@UserID() id: string, @Param() params: AddMemberDto) {
+    return this.cultService.manageMembership(
+      id,
+      params.username,
+      Action.Remove,
+    );
   }
 }
