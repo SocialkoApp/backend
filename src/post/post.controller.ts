@@ -80,13 +80,4 @@ export class PostController {
   async downvotePost(@UserID() id: string, @Param() params: VotePostDto) {
     return this.postService.downvotePost(id, params.id);
   }
-
-  @ApiBearerAuth(Role.User)
-  @ApiBearerAuth(Role.Admin)
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('file'))
-  @Post('image')
-  async uploadPostImage(@UploadedFile() file: Express.Multer.File) {
-    return this.postService.uploadPostImage(file.buffer, file.originalname);
-  }
 }
