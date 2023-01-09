@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="http://aikenahac.com/" target="_blank"><img src="https://s3.eu-central-1.wasabisys.com/socialko/logo.svg" style="border-radius: 25px" width="200" alt="Nest Logo" /></a>
+  <a href="http://aikenahac.com/" target="_blank"><img src="https://cdn.aikenahac.com/socialko-assets/logo.svg" style="border-radius: 25px" width="200" alt="Socialko Logo" /></a>
 </p>
 
 <p align="center">Backend for Socialko, an open source social media app.</p>
@@ -17,7 +17,7 @@ pnpm install
 ## Environment variables
 
 ```
-DATABASE_URL="db://username:password@URL"
+DATABASE_URL="postgres://username:password@URL"
 
 JWT_SECRET=""
 EMAIL_CONFIRM_SECRET=""
@@ -51,6 +51,13 @@ SWAGGER_TAG="socialko"
 ## API Documentation
 
 API documentation is available on the `/api` endpoint.
+
+## Setting up the database
+
+1. Copy `docker-compose.yaml.example` to `docker-compose.yaml`
+   1.1 Configure username, password and/or database name
+2. Run with `docker-compose up -d`
+3. Create database tables with `npx prisma migrate dev --name init`
 
 ## Running the app
 
