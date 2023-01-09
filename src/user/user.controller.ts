@@ -42,8 +42,10 @@ export class UserController {
    */
   @ApiBearerAuth(Role.User)
   @UseInterceptors(PublicFilter(PublicUser))
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   getPublicUser(@UserID() id: string) {
+    console.log(id);
     return this.userService.findPublic({ id });
   }
 
