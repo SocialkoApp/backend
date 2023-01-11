@@ -1,3 +1,4 @@
+import { ProfileService } from 'src/profile/profile.service';
 import {
   BadRequestException,
   ConflictException,
@@ -6,7 +7,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { FilesService } from 'src/files/files.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { CreatePostDto } from './dto/create.dto';
@@ -15,7 +15,7 @@ import { CreatePostDto } from './dto/create.dto';
 export class PostService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly filesService: FilesService,
+    private readonly profileService: ProfileService,
     private readonly userService: UserService,
   ) {}
 
@@ -79,24 +79,17 @@ export class PostService {
     createdAt: true,
   };
 
-  async uploadPostImage(buffer: Buffer, filename: string) {
-    try {
-      const file = await this.filesService.uploadPublicFile(buffer, filename);
-
-      return file;
-    } catch (e) {
-      this.handleException(e);
-    }
-  }
-
   async createPost(id: string, { description, imageId }: CreatePostDto) {
     const { profileId } = await this.userService.find({ id });
+    const { cult } = await this.profileService.find({ id: profileId });
+
     try {
       const post = await this.prisma.post.create({
         data: {
           description,
           imageId,
           authorId: profileId,
+          cultId: cult.cultId,
         },
         select: this.public,
       });

@@ -18,6 +18,7 @@ import { ProfileService } from './profile.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetProfileDto } from './dto/get-profile.dto';
 import { Role } from '@prisma/client';
+import { UpdateProfilePictureDto } from './dto/update-profile-picture.dto';
 
 @ApiTags('Profile')
 @Controller('profile')
@@ -54,24 +55,11 @@ export class ProfileController {
   @ApiBearerAuth(Role.User)
   @ApiBearerAuth(Role.Admin)
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('file'))
   @Post('profile-picture')
   updateProfilePicture(
     @UserID() id: string,
-    @UploadedFile() file: Express.Multer.File,
+    @Body() body: UpdateProfilePictureDto,
   ) {
-    return this.profileService.updateProfilePicture(
-      id,
-      file.buffer,
-      file.originalname,
-    );
-  }
-
-  @ApiBearerAuth(Role.User)
-  @ApiBearerAuth(Role.Admin)
-  @UseGuards(JwtAuthGuard)
-  @Delete('profile-picture')
-  deleteProfilePicture(@UserID() id: string) {
-    return this.profileService.deleteProfilePicture(id);
+    return this.profileService.updateProfilePicture(id, body.fileId);
   }
 }

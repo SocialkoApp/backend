@@ -6,7 +6,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import { CultRole, Prisma } from '@prisma/client';
-import { FilesService } from 'src/files/files.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProfileService } from 'src/profile/profile.service';
 import { UserService } from 'src/user/user.service';
@@ -21,7 +20,6 @@ export enum Action {
 export class CultService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly filesService: FilesService,
     private readonly userService: UserService,
     private readonly profileService: ProfileService,
   ) {}
@@ -66,6 +64,11 @@ export class CultService {
     icon: {
       select: {
         url: true,
+      },
+    },
+    _count: {
+      select: {
+        members: true,
       },
     },
   };
@@ -135,6 +138,37 @@ export class CultService {
       }
 
       return cult;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async findPosts(id: string, cultId: string) {
+    const { profileId } = await this.userService.find({ id });
+
+    try {
+      let cult = await this.prisma.cult.findUnique({
+        where: {
+          id: cultId,
+        },
+        select: this.cult,
+      });
+
+      const isMember = await this.checkMembership(profileId, cult.id);
+
+      if (!isMember) {
+        return new ForbiddenException(
+          "You're not in this cult so you can't see the posts",
+        );
+      }
+
+      let posts = await this.prisma.post.findMany({
+        where: {
+          cultId: cultId,
+        },
+      });
+
+      return posts;
     } catch (e) {
       this.handleException(e);
     }

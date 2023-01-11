@@ -38,8 +38,6 @@ export class UserService {
                 url: true,
               },
             },
-            posts: true,
-            stories: true,
           },
         },
       },
