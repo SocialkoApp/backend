@@ -31,6 +31,7 @@ export class ProfileService {
     cult: {
       select: {
         cultId: true,
+        role: true,
       },
     },
     updatedAt: true,

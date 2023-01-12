@@ -117,11 +117,13 @@ export class PostService {
   // Get all posts that weren't posted by you
   async getPosts(id: string) {
     const { profileId } = await this.userService.find({ id });
+    const { cult } = await this.profileService.find({ id: profileId });
 
     try {
       const posts = await this.prisma.post.findMany({
         where: {
           authorId: { not: profileId },
+          cultId: cult.cultId,
         },
         select: this.public,
       });

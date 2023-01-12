@@ -53,6 +53,7 @@ export class CultService {
         member: {
           select: this.profile,
         },
+        role: true,
       },
     },
   };
@@ -143,37 +144,6 @@ export class CultService {
     }
   }
 
-  async findPosts(id: string, cultId: string) {
-    const { profileId } = await this.userService.find({ id });
-
-    try {
-      let cult = await this.prisma.cult.findUnique({
-        where: {
-          id: cultId,
-        },
-        select: this.cult,
-      });
-
-      const isMember = await this.checkMembership(profileId, cult.id);
-
-      if (!isMember) {
-        return new ForbiddenException(
-          "You're not in this cult so you can't see the posts",
-        );
-      }
-
-      let posts = await this.prisma.post.findMany({
-        where: {
-          cultId: cultId,
-        },
-      });
-
-      return posts;
-    } catch (e) {
-      this.handleException(e);
-    }
-  }
-
   async manageMembership(id: string, username: string, action: Action) {
     // The profile of the user who is adding someone to the cult
     const { cult } = await this.profileService.getProfileByUserId(id);
@@ -181,9 +151,9 @@ export class CultService {
     // The profile of the user we're adding to the cult
     const addee = await this.userService.find({ username });
 
-    if (cult.role === CultRole.Member) {
+    if (cult.role !== CultRole.Ruler) {
       return new ForbiddenException(
-        "You're not the ruler, so you can't add people",
+        "You're not the ruler, so you can't manage people",
       );
     }
 
@@ -206,6 +176,7 @@ export class CultService {
                   },
                 },
         },
+        select: this.cultPrivate,
       });
 
       return add;
@@ -240,10 +211,7 @@ export class CultService {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch (error.code) {
         case 'P2002':
-          const conflictingField = error.meta['target'][0];
-          throw new ConflictException(
-            `Cult with this ${conflictingField} already exists`,
-          );
+          throw new ConflictException(`There was a conflicting field`);
         default:
           this.logger.error(error);
           throw new BadRequestException(error.code);
