@@ -67,8 +67,10 @@ model Post {
   image   PublicFile? @relation(fields: [imageId], references: [id])
   imageId String?
 
-  upvotes     Upvote[]
-  downvotes   Downvote[]
+  upvotes   Upvote[]
+  downvotes Downvote[]
+  score     Int        @default(0)
+
   description String?
 
   author   Profile? @relation(fields: [authorId], references: [id])

@@ -2,11 +2,12 @@ import { ProfileService } from 'src/profile/profile.service';
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { CultRole, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { CreatePostDto } from './dto/create.dto';
@@ -100,13 +101,21 @@ export class PostService {
     }
   }
 
-  async getPost(id: string) {
-    this.check(id);
+  async getPost(id: string, postId: string) {
+    this.check(postId);
+
+    const { profileId } = await this.userService.find({ id });
+    const { cult } = await this.profileService.find({ id: profileId });
+
     try {
       const post = await this.prisma.post.findUnique({
-        where: { id },
+        where: { id: postId },
         select: this.public,
       });
+
+      if (post.cultId !== cult.cultId) {
+        return new ForbiddenException("This post isn't from your cult.");
+      }
 
       return post;
     } catch (e) {
@@ -134,7 +143,27 @@ export class PostService {
     }
   }
 
-  async getUserPosts(username: string) {
+  async getUserPosts(id: string, username: string) {
+    // User details
+    const { profileId } = await this.userService.find({ id });
+    const { cult } = await this.profileService.find({ id: profileId });
+
+    // Target details
+    const target = await this.userService.find({ username });
+    const targetProfile = await this.profileService.find({
+      id: target.profileId,
+    });
+
+    if (
+      !cult ||
+      !targetProfile.cult ||
+      cult.cultId !== targetProfile.cult.cultId
+    ) {
+      return new ForbiddenException(
+        "You're not in the same cult as this user so you can't view their posts.",
+      );
+    }
+
     try {
       const posts = await this.prisma.post.findMany({
         where: {
@@ -174,15 +203,20 @@ export class PostService {
 
   async upvotePost(id: string, postId: string) {
     const { profileId } = await this.userService.find({ id });
+    const { cult } = await this.profileService.find({ id: profileId });
 
     this.check(postId);
 
     const upvoted: boolean = await this.checkUpvoted(id, postId);
     const downvoted: boolean = await this.checkDownvoted(id, postId);
 
+    let pointValue: number = 1;
+
     if (downvoted) {
       await this.downvotePost(id, postId);
     }
+
+    if (cult.role === CultRole.Ruler) pointValue = 2;
 
     try {
       const post = await this.prisma.post.update({
@@ -196,12 +230,18 @@ export class PostService {
                   profileId_postId: { profileId, postId },
                 },
               },
+              score: {
+                decrement: pointValue,
+              },
             }
           : {
               upvotes: {
                 create: {
                   profileId,
                 },
+              },
+              score: {
+                increment: pointValue,
               },
             },
         select: this.public,
@@ -215,8 +255,11 @@ export class PostService {
 
   async downvotePost(id: string, postId: string) {
     const { profileId } = await this.userService.find({ id });
+    const { cult } = await this.profileService.find({ id: profileId });
 
     this.check(postId);
+
+    let pointValue: number = 1;
 
     const downvoted: boolean = await this.checkDownvoted(id, postId);
     const upvoted: boolean = await this.checkUpvoted(id, postId);
@@ -224,6 +267,8 @@ export class PostService {
     if (upvoted) {
       await this.upvotePost(id, postId);
     }
+
+    if (cult.role === CultRole.Ruler) pointValue = 2;
 
     try {
       const post = await this.prisma.post.update({
@@ -237,12 +282,18 @@ export class PostService {
                   profileId_postId: { profileId, postId },
                 },
               },
+              score: {
+                decrement: pointValue,
+              },
             }
           : {
               downvotes: {
                 create: {
                   profileId,
                 },
+              },
+              score: {
+                increment: pointValue,
               },
             },
         select: this.public,
