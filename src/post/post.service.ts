@@ -77,6 +77,7 @@ export class PostService {
         url: true,
       },
     },
+    score: true,
     type: true,
     createdAt: true,
   };
@@ -285,7 +286,7 @@ export class PostService {
                 },
               },
               score: {
-                decrement: pointValue,
+                increment: pointValue,
               },
             }
           : {
@@ -295,7 +296,7 @@ export class PostService {
                 },
               },
               score: {
-                increment: pointValue,
+                decrement: pointValue,
               },
             },
         select: this.public,
