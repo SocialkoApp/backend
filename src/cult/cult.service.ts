@@ -12,7 +12,7 @@ import { UserService } from 'src/user/user.service';
 import { CreateCultDto } from './dto/create.dto';
 
 export enum Action {
-  Remove = 'remove',
+  Remove = 'Remove',
   Add = 'Add',
 }
 

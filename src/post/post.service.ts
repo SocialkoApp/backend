@@ -77,10 +77,11 @@ export class PostService {
         url: true,
       },
     },
+    type: true,
     createdAt: true,
   };
 
-  async createPost(id: string, { description, imageId }: CreatePostDto) {
+  async createPost(id: string, { description, imageId, type }: CreatePostDto) {
     const { profileId } = await this.userService.find({ id });
     const { cult } = await this.profileService.find({ id: profileId });
 
@@ -91,6 +92,7 @@ export class PostService {
           imageId,
           authorId: profileId,
           cultId: cult.cultId,
+          type: type,
         },
         select: this.public,
       });

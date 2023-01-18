@@ -79,8 +79,15 @@ model Post {
   cult   Cult?   @relation(fields: [cultId], references: [id])
   cultId String?
 
+  type PostType @default(Image)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+enum PostType {
+  Text
+  Image
 }
 
 model Upvote {

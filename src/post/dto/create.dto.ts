@@ -15,4 +15,15 @@ export class CreatePostDto {
   })
   @IsString()
   imageId: string;
+  @ApiProperty({
+    name: 'type',
+    example: 'Text',
+  })
+  @IsString()
+  type: PostType;
+}
+
+enum PostType {
+  Text = 'Text',
+  Image = 'Image',
 }
