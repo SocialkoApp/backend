@@ -30,7 +30,12 @@ export class ProfileService {
     },
     cult: {
       select: {
-        cultId: true,
+        cult: {
+          select: {
+            name: true,
+            id: true,
+          },
+        },
         role: true,
       },
     },

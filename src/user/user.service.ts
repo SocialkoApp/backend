@@ -130,10 +130,6 @@ export class UserService {
     return user;
   }
 
-  async findById(userId: string) {
-    return this.find({ id: userId });
-  }
-
   async find(user: Prisma.UserWhereUniqueInput) {
     await this.check(user);
     const { password, ...result } = await this.prisma.user.findUnique({

@@ -12,8 +12,8 @@ import { UserService } from 'src/user/user.service';
 import { CreateCultDto } from './dto/create.dto';
 
 export enum Action {
-  Remove = 'Remove',
-  Add = 'Add',
+  Remove = 'remove',
+  Add = 'add',
 }
 
 @Injectable()
@@ -116,7 +116,20 @@ export class CultService {
     }
   }
 
-  async find(id: string, name: string) {
+  async find(input: Prisma.CultWhereUniqueInput) {
+    try {
+      const cult = await this.prisma.cult.findUnique({
+        where: input,
+        select: this.cult,
+      });
+
+      return cult;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async findByName(id: string, name: string) {
     const { profileId } = await this.userService.find({ id });
 
     try {
@@ -146,6 +159,7 @@ export class CultService {
 
   async manageMembership(id: string, username: string, action: Action) {
     // The profile of the user who is adding someone to the cult
+    const user = await this.userService.find({ id });
     const { cult } = await this.profileService.getProfileByUserId(id);
 
     // The profile of the user we're adding to the cult
@@ -160,7 +174,7 @@ export class CultService {
     try {
       const add = await this.prisma.cult.update({
         where: {
-          id: cult.cultId,
+          id: cult['cult'].id,
         },
         data: {
           members:
@@ -179,8 +193,15 @@ export class CultService {
         select: this.cultPrivate,
       });
 
+      this.logger.verbose(
+        `${user.username} has ${action}ed ${username} ${
+          action === Action.Add ? 'to' : 'from'
+        } ${add.name}`,
+      );
+
       return add;
     } catch (e) {
+      this.logger.verbose('bruh');
       this.handleException(e);
     }
   }
@@ -216,6 +237,9 @@ export class CultService {
           this.logger.error(error);
           throw new BadRequestException(error.code);
       }
+    } else {
+      this.logger.error(error);
+      throw new BadRequestException(error.name);
     }
   }
 }

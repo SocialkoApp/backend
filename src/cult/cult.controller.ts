@@ -31,7 +31,7 @@ export class CultController {
   @UseGuards(JwtAuthGuard)
   @Get('c/:name')
   async getCult(@UserID() id: string, @Param() params: GetCulteDto) {
-    return this.cultService.find(id, params.name);
+    return this.cultService.findByName(id, params.name);
   }
 
   @ApiBearerAuth(Role.User)

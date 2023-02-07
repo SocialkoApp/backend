@@ -1,7 +1,6 @@
 import { ProfileService } from 'src/profile/profile.service';
 import {
   BadRequestException,
-  ConflictException,
   ForbiddenException,
   Injectable,
   Logger,
@@ -11,6 +10,7 @@ import { CultRole, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { CreatePostDto } from './dto/create.dto';
+import { IoTSecureTunneling } from 'aws-sdk';
 
 @Injectable()
 export class PostService {
@@ -26,7 +26,6 @@ export class PostService {
     id: true,
     firstName: true,
     lastName: true,
-    bio: true,
     user: {
       select: {
         username: true,
@@ -37,40 +36,28 @@ export class PostService {
         url: true,
       },
     },
+    cult: {
+      select: {
+        role: true,
+      },
+    },
     updatedAt: true,
   };
 
   private public: Prisma.PostSelect = {
     id: true,
-    upvotes: {
+    votes: {
       select: {
         profile: {
           select: this.profile,
         },
+        type: true,
       },
     },
-    downvotes: {
-      select: {
-        profile: {
-          select: this.profile,
-        },
-      },
-    },
+    title: true,
     description: true,
     author: {
-      select: {
-        id: true,
-        user: {
-          select: {
-            username: true,
-          },
-        },
-        profilePicture: {
-          select: {
-            url: true,
-          },
-        },
-      },
+      select: this.profile,
     },
     image: {
       select: {
@@ -82,13 +69,17 @@ export class PostService {
     createdAt: true,
   };
 
-  async createPost(id: string, { description, imageId, type }: CreatePostDto) {
+  async createPost(
+    id: string,
+    { title, description, imageId, type }: CreatePostDto,
+  ) {
     const { profileId } = await this.userService.find({ id });
     const { cult } = await this.profileService.find({ id: profileId });
 
     try {
       const post = await this.prisma.post.create({
         data: {
+          title,
           description,
           imageId,
           authorId: profileId,
@@ -138,6 +129,9 @@ export class PostService {
           cultId: cult.cultId,
         },
         select: this.public,
+        orderBy: {
+          createdAt: 'desc',
+        },
       });
 
       return posts;
@@ -228,7 +222,7 @@ export class PostService {
         },
         data: upvoted
           ? {
-              upvotes: {
+              votes: {
                 delete: {
                   profileId_postId: { profileId, postId },
                 },
@@ -238,9 +232,10 @@ export class PostService {
               },
             }
           : {
-              upvotes: {
+              votes: {
                 create: {
                   profileId,
+                  type: 'Upvote',
                 },
               },
               score: {
@@ -280,7 +275,7 @@ export class PostService {
         },
         data: downvoted
           ? {
-              downvotes: {
+              votes: {
                 delete: {
                   profileId_postId: { profileId, postId },
                 },
@@ -290,9 +285,10 @@ export class PostService {
               },
             }
           : {
-              downvotes: {
+              votes: {
                 create: {
                   profileId,
+                  type: 'Downvote',
                 },
               },
               score: {
@@ -315,9 +311,10 @@ export class PostService {
       await this.prisma.post.findFirst({
         where: {
           id: postId,
-          upvotes: {
+          votes: {
             some: {
               profileId: profileId,
+              type: 'Upvote',
             },
           },
         },
@@ -336,9 +333,10 @@ export class PostService {
       await this.prisma.post.findFirst({
         where: {
           id: postId,
-          downvotes: {
+          votes: {
             some: {
               profileId: profileId,
+              type: 'Downvote',
             },
           },
         },

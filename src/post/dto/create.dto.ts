@@ -3,6 +3,13 @@ import { IsString } from 'class-validator';
 
 export class CreatePostDto {
   @ApiProperty({
+    name: 'title',
+    example: 'Story of Jeff Bezos',
+  })
+  @IsString()
+  title?: string;
+
+  @ApiProperty({
     name: 'description',
     example: 'CEO entrepreneur born in 1964',
   })

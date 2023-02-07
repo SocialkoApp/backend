@@ -52,8 +52,7 @@ model Profile {
 
   bio String?
 
-  upvoted   Upvote[]
-  downvoted Downvote[]
+  voted Vote[]
 
   cult CultMembership?
 
@@ -67,10 +66,11 @@ model Post {
   image   PublicFile? @relation(fields: [imageId], references: [id])
   imageId String?
 
-  upvotes   Upvote[]
-  downvotes Downvote[]
-  score     Int        @default(0)
+  votes Vote[]
 
+  score Int @default(0)
+
+  title       String?
   description String?
 
   author   Profile? @relation(fields: [authorId], references: [id])
@@ -90,26 +90,22 @@ enum PostType {
   Image
 }
 
-model Upvote {
-  profile   Profile @relation(fields: [profileId], references: [id])
-  profileId String  @map("profile_id")
-
-  post   Post   @relation(fields: [postId], references: [id])
-  postId String @map("post_id")
-
-  @@id([profileId, postId])
-  @@map("post_upvote")
-}
-
-model Downvote {
+model Vote {
   profile   Profile @relation(fields: [profileId], references: [id])
   profileId String
 
   post   Post   @relation(fields: [postId], references: [id])
   postId String
 
+  type VoteType
+
   @@id([profileId, postId])
   @@map("post_downvote")
+}
+
+enum VoteType {
+  Upvote
+  Downvote
 }
 
 model CultMembership {

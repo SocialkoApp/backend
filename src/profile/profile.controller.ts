@@ -2,20 +2,16 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Post,
   Put,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserID } from 'src/user/user.decorator';
 import { ProfileService } from './profile.service';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { GetProfileDto } from './dto/get-profile.dto';
 import { Role } from '@prisma/client';
 import { UpdateProfilePictureDto } from './dto/update-profile-picture.dto';
