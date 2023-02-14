@@ -40,8 +40,8 @@ enum Role {
 model Profile {
   id String @id @default(uuid())
 
-  firstName String?
-  lastName  String?
+  firstName String
+  lastName  String
 
   user User?
 
@@ -50,9 +50,10 @@ model Profile {
   profilePicture   PublicFile? @relation(fields: [profilePictureId], references: [id])
   profilePictureId String?
 
-  bio String?
+  bio String @default("A Socialko user")
 
-  voted Vote[]
+  voted    Vote[]
+  comments Comment[]
 
   cult CultMembership?
 
@@ -66,7 +67,8 @@ model Post {
   image   PublicFile? @relation(fields: [imageId], references: [id])
   imageId String?
 
-  votes Vote[]
+  votes    Vote[]
+  comments Comment[]
 
   score Int @default(0)
 
@@ -100,12 +102,24 @@ model Vote {
   type VoteType
 
   @@id([profileId, postId])
-  @@map("post_downvote")
+  @@map("post_vote")
 }
 
 enum VoteType {
   Upvote
   Downvote
+}
+
+model Comment {
+  id String @id @default(uuid())
+
+  author   Profile @relation(fields: [authorId], references: [id])
+  authorId String
+
+  post   Post   @relation(fields: [postId], references: [id])
+  postId String
+
+  content String
 }
 
 model CultMembership {

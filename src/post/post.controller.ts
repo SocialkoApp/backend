@@ -16,6 +16,7 @@ import { PostService } from './post.service';
 import { GetPostDto } from './dto/get-post.dto';
 import { UserID } from 'src/user/user.decorator';
 import { Role } from '@prisma/client';
+import { CommentPostDto } from './dto/comment.dto';
 
 @ApiTags('Post')
 @Controller('posts')
@@ -79,5 +80,13 @@ export class PostController {
   @Put('downvote/:id')
   async downvotePost(@UserID() id: string, @Param() params: VotePostDto) {
     return this.postService.downvotePost(id, params.id);
+  }
+
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
+  @UseGuards(JwtAuthGuard)
+  @Put('comment')
+  async commentPost(@UserID() id: string, @Body() body: CommentPostDto) {
+    return this.postService.commentPost(id, body);
   }
 }

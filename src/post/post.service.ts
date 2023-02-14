@@ -11,6 +11,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { CreatePostDto } from './dto/create.dto';
 import { IoTSecureTunneling } from 'aws-sdk';
+import { CommentPostDto } from './dto/comment.dto';
 
 @Injectable()
 export class PostService {
@@ -52,6 +53,14 @@ export class PostService {
           select: this.profile,
         },
         type: true,
+      },
+    },
+    comments: {
+      select: {
+        author: {
+          select: this.profile,
+        },
+        content: true,
       },
     },
     title: true,
@@ -193,6 +202,33 @@ export class PostService {
       });
 
       return posts;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async commentPost(id: string, { postId, content }: CommentPostDto) {
+    const { profileId } = await this.userService.find({ id });
+
+    this.check(postId);
+
+    try {
+      const post = await this.prisma.post.update({
+        where: {
+          id: postId,
+        },
+        data: {
+          comments: {
+            create: {
+              content,
+              authorId: profileId,
+            },
+          },
+        },
+        select: this.public,
+      });
+
+      return post;
     } catch (e) {
       this.handleException(e);
     }
