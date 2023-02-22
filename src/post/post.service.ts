@@ -126,7 +126,7 @@ export class PostService {
     }
   }
 
-  // Get all posts that weren't posted by you
+  // Get all posts from the cult
   async getPosts(id: string) {
     const { profileId } = await this.userService.find({ id });
     const { cult } = await this.profileService.find({ id: profileId });
@@ -134,7 +134,6 @@ export class PostService {
     try {
       const posts = await this.prisma.post.findMany({
         where: {
-          authorId: { not: profileId },
           cultId: cult.cultId,
         },
         select: this.public,
