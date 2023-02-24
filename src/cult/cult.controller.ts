@@ -1,4 +1,5 @@
-import { Action, CultService } from './cult.service';
+import { ManageRequestDto } from './dto/manage-request.dto';
+import { Action, CultService, RequestAction } from './cult.service';
 import {
   Body,
   Controller,
@@ -14,7 +15,8 @@ import { UserID } from 'src/user/user.decorator';
 import { CreateCultDto } from './dto/create.dto';
 import { GetCulteDto } from './dto/get-cult.dto';
 import { Role } from '@prisma/client';
-import { AddMemberDto } from './dto/add-member.dto';
+import { ManageMemberDto } from './dto/manage-member.dto';
+import { JoinRequestDto } from './dto/join-request.dto';
 
 @ApiTags('Cult')
 @Controller()
@@ -45,8 +47,51 @@ export class CultController {
   @ApiBearerAuth(Role.User)
   @ApiBearerAuth(Role.Admin)
   @UseGuards(JwtAuthGuard)
+  @Post('cult/request/:cultId')
+  async joinRequest(@UserID() id: string, @Param() params: JoinRequestDto) {
+    return this.cultService.joinRequest(id, params.cultId);
+  }
+
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
+  @UseGuards(JwtAuthGuard)
+  @Get('cult/members')
+  async members(@UserID() id: string) {
+    return this.cultService.findMembers(id);
+  }
+
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
+  @UseGuards(JwtAuthGuard)
+  @Get('cult/requests')
+  async requests(@UserID() id: string) {
+    return this.cultService.findRequests(id);
+  }
+
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
+  @UseGuards(JwtAuthGuard)
+  @Put('cult/request/accept/:id')
+  async requestAccept(@UserID() id: string, @Param() params: ManageRequestDto) {
+    return this.cultService.manageRequest(id, params.id, RequestAction.Accept);
+  }
+
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
+  @UseGuards(JwtAuthGuard)
+  @Put('cult/request/decline/:id')
+  async requestDecline(
+    @UserID() id: string,
+    @Param() params: ManageRequestDto,
+  ) {
+    return this.cultService.manageRequest(id, params.id, RequestAction.Decline);
+  }
+
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
+  @UseGuards(JwtAuthGuard)
   @Put('cult/add/:username')
-  async addCultMember(@UserID() id: string, @Param() params: AddMemberDto) {
+  async addCultMember(@UserID() id: string, @Param() params: ManageMemberDto) {
     return this.cultService.manageMembership(id, params.username, Action.Add);
   }
 
@@ -54,7 +99,10 @@ export class CultController {
   @ApiBearerAuth(Role.Admin)
   @UseGuards(JwtAuthGuard)
   @Put('cult/remove/:username')
-  async removeCultMember(@UserID() id: string, @Param() params: AddMemberDto) {
+  async removeCultMember(
+    @UserID() id: string,
+    @Param() params: ManageMemberDto,
+  ) {
     return this.cultService.manageMembership(
       id,
       params.username,

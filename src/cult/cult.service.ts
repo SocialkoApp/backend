@@ -12,8 +12,13 @@ import { UserService } from 'src/user/user.service';
 import { CreateCultDto } from './dto/create.dto';
 
 export enum Action {
-  Remove = 'remove',
   Add = 'add',
+  Remove = 'remove',
+}
+
+export enum RequestAction {
+  Accept = 'accept',
+  Decline = 'decline',
 }
 
 @Injectable()
@@ -79,6 +84,10 @@ export class CultService {
 
     this.validateCultName(name);
 
+    if (this.userInCult(profileId)) {
+      return new ConflictException('User already in cult');
+    }
+
     try {
       const cult = await this.prisma.cult.create({
         data: {
@@ -95,8 +104,6 @@ export class CultService {
       });
 
       this.logger.verbose(`The cult ${name} has been created`);
-
-      this.logger.verbose(cult);
 
       return cult;
     } catch (e) {
@@ -157,6 +164,146 @@ export class CultService {
     }
   }
 
+  async joinRequest(id: string, cultId: string) {
+    const { profileId } = await this.userService.find({ id });
+
+    if (await this.userInCult(profileId)) {
+      return new ConflictException('User already in cult');
+    }
+
+    try {
+      const join = await this.prisma.cult.update({
+        where: {
+          id: cultId,
+        },
+        data: {
+          joinRequests: {
+            create: {
+              profileId,
+            },
+          },
+        },
+        select: this.cult,
+      });
+
+      return join;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async manageRequest(id: string, requesterId: string, action: RequestAction) {
+    const profile = await this.profileService.getProfileByUserId(id);
+
+    if (!(await this.userInCult(profile.id))) {
+      return new ForbiddenException("You're not in a cult.");
+    }
+
+    if (profile.cult.role !== CultRole.Ruler) {
+      return new ForbiddenException(
+        "You're not the ruler, so you can't manage people",
+      );
+    }
+
+    try {
+      const decline = await this.prisma.cult.update({
+        where: {
+          id: profile.cult['cult'].id,
+        },
+        data: {
+          joinRequests: {
+            delete: {
+              profileId: requesterId,
+            },
+          },
+        },
+        select: {
+          joinRequests: {
+            select: {
+              profile: {
+                select: this.profile,
+              },
+            },
+          },
+        },
+      });
+
+      if (action === RequestAction.Accept) {
+        const { user } = await this.profileService.find({ id: requesterId });
+        return await this.manageMembership(id, user.username, Action.Add);
+      }
+
+      return decline;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async findMembers(id: string) {
+    const profile = await this.profileService.getProfileByUserId(id);
+
+    if (!(await this.userInCult(profile.id))) {
+      return new ForbiddenException("You're not in a cult.");
+    }
+
+    try {
+      const members = await this.prisma.cult.findUnique({
+        where: {
+          id: profile.cult['cult'].id,
+        },
+        select: {
+          members: {
+            select: {
+              member: {
+                select: this.profile,
+              },
+              role: true,
+            },
+          },
+        },
+      });
+
+      return members;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async findRequests(id: string) {
+    const profile = await this.profileService.getProfileByUserId(id);
+
+    if (!(await this.userInCult(profile.id))) {
+      return new ForbiddenException("You're not in a cult.");
+    }
+
+    if (profile.cult.role !== CultRole.Ruler) {
+      return new ForbiddenException(
+        "You're not the ruler, so you can't manage people",
+      );
+    }
+
+    try {
+      const requests = await this.prisma.cult.findUnique({
+        where: {
+          id: profile.cult['cult'].id,
+        },
+        select: {
+          joinRequests: {
+            select: {
+              profile: {
+                select: this.profile,
+              },
+            },
+          },
+        },
+      });
+
+      return requests;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
   async manageMembership(id: string, username: string, action: Action) {
     // The profile of the user who is adding someone to the cult
     const user = await this.userService.find({ id });
@@ -201,16 +348,33 @@ export class CultService {
 
       return add;
     } catch (e) {
-      this.logger.verbose('bruh');
       this.handleException(e);
     }
   }
 
+  async userInCult(id: string) {
+    try {
+      const profile = await this.profileService.find({ id });
+
+      if (!profile.cult) return false;
+
+      if (profile.cult !== null) return true;
+    } catch (e) {
+      this.handleException(e);
+    }
+
+    return false;
+  }
+
   async checkMembership(id: string, cultId: string) {
     try {
-      const { cult } = await this.profileService.find({ id });
+      const profile = await this.profileService.find({ id });
 
-      if (cult.cultId === cultId) {
+      if (!profile.cult) {
+        return false;
+      }
+
+      if (profile.cult.cultId === cultId) {
         return true;
       }
     } catch (e) {

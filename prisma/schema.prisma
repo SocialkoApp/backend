@@ -55,7 +55,8 @@ model Profile {
   voted    Vote[]
   comments Comment[]
 
-  cult CultMembership?
+  cult            CultMembership?
+  cultJoinRequest CultJoinRequest?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -153,8 +154,21 @@ model Cult {
 
   posts Post[]
 
+  joinRequests CultJoinRequest[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+model CultJoinRequest {
+  cult   Cult   @relation(fields: [cultId], references: [id])
+  cultId String
+
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId String  @unique
+
+  @@id([cultId, profileId])
+  @@map("cult_join_request")
 }
 
 model PublicFile {
