@@ -1,3 +1,4 @@
+import { UpdateCultDto } from './dto/update-cult.dto';
 import { ManageRequestDto } from './dto/manage-request.dto';
 import { Action, CultService, RequestAction } from './cult.service';
 import {
@@ -17,6 +18,7 @@ import { GetCulteDto } from './dto/get-cult.dto';
 import { Role } from '@prisma/client';
 import { ManageMemberDto } from './dto/manage-member.dto';
 import { JoinRequestDto } from './dto/join-request.dto';
+import { UpdateCultIconDto } from './dto/update-cult-icon.dto';
 
 @ApiTags('Cult')
 @Controller()
@@ -42,6 +44,30 @@ export class CultController {
   @Post('cult')
   async createCult(@UserID() id: string, @Body() body: CreateCultDto) {
     return this.cultService.createCult(id, body);
+  }
+
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
+  @UseGuards(JwtAuthGuard)
+  @Get('cult')
+  async getMyCult(@UserID() id: string) {
+    return this.cultService.findMyCult(id);
+  }
+
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
+  @UseGuards(JwtAuthGuard)
+  @Put('cult')
+  async updateMyCult(@UserID() id: string, @Body() body: UpdateCultDto) {
+    return this.cultService.updateMyCult(id, body);
+  }
+
+  @ApiBearerAuth(Role.User)
+  @ApiBearerAuth(Role.Admin)
+  @UseGuards(JwtAuthGuard)
+  @Post('cult/icon')
+  async updateCultIcon(@UserID() id: string, @Body() body: UpdateCultIconDto) {
+    return this.cultService.updateMyCultIcon(id, body.fileId);
   }
 
   @ApiBearerAuth(Role.User)

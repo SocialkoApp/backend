@@ -1,3 +1,4 @@
+import { UpdateCultDto } from './dto/update-cult.dto';
 import {
   BadRequestException,
   ConflictException,
@@ -49,20 +50,6 @@ export class CultService {
     updatedAt: true,
   };
 
-  private cultPrivate: Prisma.CultSelect = {
-    id: true,
-    name: true,
-    description: true,
-    members: {
-      select: {
-        member: {
-          select: this.profile,
-        },
-        role: true,
-      },
-    },
-  };
-
   private cult: Prisma.CultSelect = {
     id: true,
     name: true,
@@ -79,10 +66,35 @@ export class CultService {
     },
   };
 
+  private cultPrivate: Prisma.CultSelect = {
+    ...this.cult,
+    members: {
+      select: {
+        member: {
+          select: this.profile,
+        },
+        role: true,
+      },
+    },
+  };
+
+  private cultRuler: Prisma.CultSelect = {
+    ...this.cultPrivate,
+    joinRequests: {
+      select: {
+        profile: {
+          select: this.profile,
+        },
+      },
+    },
+  };
+
   async createCult(id: string, { name, description, iconId }: CreateCultDto) {
     const { profileId } = await this.userService.find({ id });
 
-    this.validateCultName(name);
+    if (!this.nameRegex.test(name)) {
+      return new BadRequestException('Invalid cult name');
+    }
 
     if (this.userInCult(profileId)) {
       return new ConflictException('User already in cult');
@@ -118,6 +130,82 @@ export class CultService {
       });
 
       return cults;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async findMyCult(id: string) {
+    const { profileId } = await this.userService.find({ id });
+    const { cult } = await this.profileService.find({ id: profileId });
+
+    if (!(await this.userInCult(profileId))) {
+      return new ForbiddenException("You're not in a cult.");
+    }
+
+    try {
+      const c = await this.prisma.cult.findUnique({
+        where: {
+          id: cult['cult'].id,
+        },
+        select:
+          cult.role === CultRole.Ruler ? this.cultRuler : this.cultPrivate,
+      });
+
+      return {
+        ...c,
+        role: cult.role,
+      };
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async updateMyCult(id: string, body: UpdateCultDto) {
+    const { profileId } = await this.userService.find({ id });
+    const { cult } = await this.profileService.find({ id: profileId });
+
+    if (!(await this.userInCult(profileId))) {
+      return new ForbiddenException("You're not in a cult.");
+    }
+
+    if (!this.nameRegex.test(body.name)) {
+      return new BadRequestException('Invalid cult name');
+    }
+
+    try {
+      const c = await this.prisma.cult.update({
+        where: {
+          id: cult['cult'].id,
+        },
+        data: body,
+        select: this.cult,
+      });
+
+      return c;
+    } catch (e) {
+      this.handleException(e);
+    }
+  }
+
+  async updateMyCultIcon(id: string, fileId: string) {
+    const { profileId } = await this.userService.find({ id });
+    const { cult } = await this.profileService.find({ id: profileId });
+
+    if (!(await this.userInCult(profileId))) {
+      return new ForbiddenException("You're not in a cult.");
+    }
+
+    try {
+      const c = await this.prisma.cult.update({
+        where: { id: cult['cult'].id },
+        data: {
+          iconId: fileId,
+        },
+        select: this.cult,
+      });
+
+      return c;
     } catch (e) {
       this.handleException(e);
     }
@@ -172,7 +260,7 @@ export class CultService {
     }
 
     try {
-      const join = await this.prisma.cult.update({
+      await this.prisma.cult.update({
         where: {
           id: cultId,
         },
@@ -183,10 +271,23 @@ export class CultService {
             },
           },
         },
-        select: this.cult,
       });
 
-      return join;
+      const requester = await this.prisma.profile.findUnique({
+        where: {
+          id: profileId,
+        },
+        select: {
+          ...this.profile,
+          cultJoinRequest: {
+            select: {
+              cultId: true,
+            },
+          },
+        },
+      });
+
+      return requester;
     } catch (e) {
       this.handleException(e);
     }
@@ -305,11 +406,11 @@ export class CultService {
   }
 
   async manageMembership(id: string, username: string, action: Action) {
-    // The profile of the user who is adding someone to the cult
+    // The profile of the user who is adding/removing someone to/from the cult
     const user = await this.userService.find({ id });
     const { cult } = await this.profileService.getProfileByUserId(id);
 
-    // The profile of the user we're adding to the cult
+    // The profile of the user we're adding/removing to the cult
     const addee = await this.userService.find({ username });
 
     if (cult.role !== CultRole.Ruler) {
@@ -339,6 +440,14 @@ export class CultService {
         },
         select: this.cultPrivate,
       });
+
+      if (action === Action.Remove) {
+        await this.prisma.post.deleteMany({
+          where: {
+            authorId: addee.profileId,
+          },
+        });
+      }
 
       this.logger.verbose(
         `${user.username} has ${action}ed ${username} ${
@@ -384,13 +493,7 @@ export class CultService {
     return false;
   }
 
-  private validateCultName(name: string) {
-    const regex: RegExp = /^[A-Za-z0-9_.-]{4,16}$/;
-
-    if (!regex.test(name)) {
-      return new BadRequestException('Invalid cult name');
-    }
-  }
+  private nameRegex: RegExp = /^[A-Za-z0-9_.-]{4,16}$/;
 
   private handleException(error: Error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {

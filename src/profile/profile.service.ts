@@ -13,6 +13,22 @@ export class ProfileService {
 
   private readonly logger: Logger = new Logger(ProfileService.name);
 
+  private cult: Prisma.CultSelect = {
+    id: true,
+    name: true,
+    description: true,
+    icon: {
+      select: {
+        url: true,
+      },
+    },
+    _count: {
+      select: {
+        members: true,
+      },
+    },
+  };
+
   private public: Prisma.ProfileSelect = {
     id: true,
     firstName: true,
@@ -31,12 +47,16 @@ export class ProfileService {
     cult: {
       select: {
         cult: {
-          select: {
-            name: true,
-            id: true,
-          },
+          select: this.cult,
         },
         role: true,
+      },
+    },
+    cultJoinRequest: {
+      select: {
+        cult: {
+          select: this.cult,
+        },
       },
     },
     updatedAt: true,
