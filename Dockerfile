@@ -38,10 +38,8 @@ ARG SWAGGER_CONTACT_WEBSITE=https://aikenahac.com
 ARG SWAGGER_CONTACT_EMAIL=ahac.aiken@gmail.com
 
 ARG SWAGGER_DESCRIPTION=Socialko API Documentation
-ARG SWAGGER_API_VERSION=0.0.1
+ARG SWAGGER_API_VERSION=1.0.0
 ARG SWAGGER_TAG=socialko
-
-ARG
 
 ## Environment variables ##
 
