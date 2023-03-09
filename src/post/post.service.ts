@@ -10,7 +10,6 @@ import { CultRole, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { CreatePostDto } from './dto/create.dto';
-import { IoTSecureTunneling } from 'aws-sdk';
 import { CommentPostDto } from './dto/comment.dto';
 
 @Injectable()
