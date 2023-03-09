@@ -117,7 +117,7 @@ export class PostService {
       });
 
       if (post.cultId !== cult.cultId) {
-        return new ForbiddenException("This post isn't from your cult.");
+        throw new ForbiddenException("This post isn't from your cult.");
       }
 
       return post;
@@ -134,7 +134,7 @@ export class PostService {
     try {
       const posts = await this.prisma.post.findMany({
         where: {
-          cultId: cult.cultId,
+          cultId: cult['cult'].id,
         },
         select: this.public,
         orderBy: {
@@ -164,7 +164,7 @@ export class PostService {
       !targetProfile.cult ||
       cult.cultId !== targetProfile.cult.cultId
     ) {
-      return new ForbiddenException(
+      throw new ForbiddenException(
         "You're not in the same cult as this user so you can't view their posts.",
       );
     }

@@ -37,6 +37,7 @@ export class ProfileService {
     user: {
       select: {
         username: true,
+        email: true,
       },
     },
     profilePicture: {

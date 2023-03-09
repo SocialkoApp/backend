@@ -182,7 +182,7 @@ export class UserService {
     const regex: RegExp = /^[a-z0-9_.-]{4,16}$/;
 
     if (!regex.test(username)) {
-      return new BadRequestException('Invalid username');
+      throw new BadRequestException('Invalid username');
     }
   }
 

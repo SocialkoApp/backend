@@ -93,12 +93,18 @@ export class CultService {
     const { profileId } = await this.userService.find({ id });
 
     if (!this.nameRegex.test(name)) {
-      return new BadRequestException('Invalid cult name');
+      throw new BadRequestException('Invalid cult name');
     }
 
-    if (this.userInCult(profileId)) {
-      return new ConflictException('User already in cult');
+    if (await this.userInCult(profileId)) {
+      throw new ConflictException('You are already in a cult');
     }
+
+    if (await this.userHasRequest(profileId)) {
+      throw new ConflictException('You currently have a pending join request');
+    }
+
+    this.logger.verbose('Attempting to create cult');
 
     try {
       const cult = await this.prisma.cult.create({
@@ -140,7 +146,7 @@ export class CultService {
     const { cult } = await this.profileService.find({ id: profileId });
 
     if (!(await this.userInCult(profileId))) {
-      return new ForbiddenException("You're not in a cult.");
+      throw new ForbiddenException("You're not in a cult.");
     }
 
     try {
@@ -166,11 +172,11 @@ export class CultService {
     const { cult } = await this.profileService.find({ id: profileId });
 
     if (!(await this.userInCult(profileId))) {
-      return new ForbiddenException("You're not in a cult.");
+      throw new ForbiddenException("You're not in a cult.");
     }
 
     if (!this.nameRegex.test(body.name)) {
-      return new BadRequestException('Invalid cult name');
+      throw new BadRequestException('Invalid cult name');
     }
 
     try {
@@ -193,7 +199,7 @@ export class CultService {
     const { cult } = await this.profileService.find({ id: profileId });
 
     if (!(await this.userInCult(profileId))) {
-      return new ForbiddenException("You're not in a cult.");
+      throw new ForbiddenException("You're not in a cult.");
     }
 
     try {
@@ -256,7 +262,11 @@ export class CultService {
     const { profileId } = await this.userService.find({ id });
 
     if (await this.userInCult(profileId)) {
-      return new ConflictException('User already in cult');
+      throw new ConflictException('You are already in a cult');
+    }
+
+    if (await this.userHasRequest(profileId)) {
+      throw new ConflictException('You already requested to join a cult');
     }
 
     try {
@@ -297,11 +307,11 @@ export class CultService {
     const profile = await this.profileService.getProfileByUserId(id);
 
     if (!(await this.userInCult(profile.id))) {
-      return new ForbiddenException("You're not in a cult.");
+      throw new ForbiddenException("You're not in a cult.");
     }
 
     if (profile.cult.role !== CultRole.Ruler) {
-      return new ForbiddenException(
+      throw new ForbiddenException(
         "You're not the ruler, so you can't manage people",
       );
     }
@@ -344,7 +354,7 @@ export class CultService {
     const profile = await this.profileService.getProfileByUserId(id);
 
     if (!(await this.userInCult(profile.id))) {
-      return new ForbiddenException("You're not in a cult.");
+      throw new ForbiddenException("You're not in a cult.");
     }
 
     try {
@@ -374,11 +384,11 @@ export class CultService {
     const profile = await this.profileService.getProfileByUserId(id);
 
     if (!(await this.userInCult(profile.id))) {
-      return new ForbiddenException("You're not in a cult.");
+      throw new ForbiddenException("You're not in a cult.");
     }
 
     if (profile.cult.role !== CultRole.Ruler) {
-      return new ForbiddenException(
+      throw new ForbiddenException(
         "You're not the ruler, so you can't manage people",
       );
     }
@@ -414,7 +424,7 @@ export class CultService {
     const addee = await this.userService.find({ username });
 
     if (cult.role !== CultRole.Ruler) {
-      return new ForbiddenException(
+      throw new ForbiddenException(
         "You're not the ruler, so you can't manage people",
       );
     }
@@ -468,6 +478,20 @@ export class CultService {
       if (!profile.cult) return false;
 
       if (profile.cult !== null) return true;
+    } catch (e) {
+      this.handleException(e);
+    }
+
+    return false;
+  }
+
+  async userHasRequest(id: string) {
+    try {
+      const profile = await this.profileService.find({ id });
+
+      if (!profile.cultJoinRequest) return false;
+
+      if (profile.cultJoinRequest !== null) return true;
     } catch (e) {
       this.handleException(e);
     }

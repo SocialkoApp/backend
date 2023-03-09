@@ -10,7 +10,7 @@ import { ForgotPasswordService } from './forgot-password.service';
 export class ForgotPasswordController {
   constructor(private readonly forgotPasswordService: ForgotPasswordService) {}
 
-  @Post('forgot')
+  @Post('reset')
   @Public()
   async forgotPassword(@Body() { email }: ForgotPasswordDto) {
     return await this.forgotPasswordService.forgotPassword(email);
