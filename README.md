@@ -24,9 +24,9 @@ EMAIL_CONFIRM_SECRET=""
 FORGOT_PASSWORD_SECRET=""
 
 MAIL_HOST="mail.aerio.cloud"
-MAIL_USER="socialko@aikenahac.com"
+MAIL_USER="no-reply@socialko.cc"
 MAIL_PASSWORD=""
-MAIL_FROM="socialko@aikenahac.com"
+MAIL_FROM="no-reply@socialko.cc"
 
 MAIL_CONFIRM_URL=""
 MAIL_FORGOT_PASSWORD_URL=""
