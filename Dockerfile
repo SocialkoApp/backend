@@ -2,11 +2,12 @@ FROM node:latest
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
-COPY tsconfig.json ./
+COPY package.json pnpm-lock.yaml tsconfig.json ./
 
-RUN npm install
-RUN npm run build
+RUN npm install -g pnpm
+
+RUN pnpm install
+RUN pnpm run build
 
 COPY . .
 
@@ -78,4 +79,4 @@ ENV SWAGGER_TAG $SWAGGER_TAG
 
 EXPOSE 4000 
 
-CMD [ "npm", "run", "start:prod" ]
+CMD [ "pnpm", "start:prod" ]
