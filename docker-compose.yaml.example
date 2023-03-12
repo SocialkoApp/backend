@@ -1,5 +1,3 @@
-version: '3.1'
-
 services:
   db:
     image: postgres
@@ -10,3 +8,39 @@ services:
       POSTGRES_DB: socialko
     ports:
       - 5432:5432
+  backend:
+    image: "ghcr.io/socialkoapp/backend:master"
+    restart: always
+    environment:
+      DATABASE_URL: "postgres://username:password@127.0.0.1:5432"
+
+      JWT_SECRET: ""
+      EMAIL_CONFIRM_SECRET: ""
+      FORGOT_PASSWORD_SECRET: ""
+
+      MAIL_HOST: "mail.aerio.cloud"
+      MAIL_USER: "no-reply@socialko.cc"
+      MAIL_PASSWORD: ""
+      MAIL_FROM: "no-reply@socialko.cc"
+
+      MAIL_CONFIRM_URL: "https://accounts.socialko.cc/confirm-email"
+      MAIL_FORGOT_PASSWORD_URL: "https://accounts.socialko.cc/forgot-password"
+
+      S3_BUCKET: "cdn.socialko.cc"
+      S3_REGION: "eu-central-1"
+      S3_ACCESS_KEY: ""
+      S3_SECRET_KEY: ""
+      S3_ENDPOINT: "s3.eu-central-1.wasabisys.com"
+      S3_PUBLIC_URL: "https://cdn.socialko.cc"
+
+      SWAGGER_TITLE: "Socialko API"
+
+      SWAGGER_CONTACT_NAME: "Aiken Tine Ahac"
+      SWAGGER_CONTACT_WEBSITE: "https://aikenahac.com"
+      SWAGGER_CONTACT_EMAIL: "ahac.aiken@gmail.com"
+
+      SWAGGER_DESCRIPTION: "Socialko API Documentation"
+      SWAGGER_API_VERSION: "0.0.1"
+      SWAGGER_TAG: "socialko"
+    ports:
+      - 4000:4000
