@@ -8,11 +8,16 @@ services:
       POSTGRES_DB: socialko
     ports:
       - 5432:5432
+	migrate:
+		image: "ghcr.io/socialkoapp/backend:master"
+		environment:
+			DATABASE_URL: "postgres://username:password@db:5432"
+		command: "npx prisma migrate deploy"
   backend:
     image: "ghcr.io/socialkoapp/backend:master"
     restart: always
     environment:
-      DATABASE_URL: "postgres://username:password@127.0.0.1:5432"
+      DATABASE_URL: "postgres://username:password@db:5432"
 
       JWT_SECRET: ""
       EMAIL_CONFIRM_SECRET: ""
