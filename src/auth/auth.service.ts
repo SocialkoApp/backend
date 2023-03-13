@@ -45,8 +45,6 @@ export class AuthService {
   async login(authLoginDto: AuthLoginDto) {
     const user = await this.validateUser(authLoginDto);
 
-    if (!user) throw new BadRequestException("This user doesn't exist");
-
     const payload = {
       userId: user.id,
     };
