@@ -7,9 +7,11 @@ COPY package.json pnpm-lock.yaml tsconfig.json ./
 RUN npm install -g pnpm
 
 RUN pnpm install
-RUN pnpm run build
 
 COPY . .
+
+RUN npx prisma generate
+RUN pnpm build
 
 ## Arguments ##
 
