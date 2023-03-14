@@ -55,7 +55,8 @@ API documentation is available on the `/api` endpoint.
 ## Setting up the database
 
 1. Copy `docker-compose.yaml.example` to `docker-compose.yaml`
-   1.1 Configure username, password and/or database name
+   1.1. Configure username, password and/or database name
+   1.2. Comment out services other than `db`
 2. Run with `docker-compose up -d`
 3. Create database tables with `npx prisma migrate dev --name init`
 
@@ -65,11 +66,8 @@ API documentation is available on the `/api` endpoint.
 # development
 $ pnpm start
 
-# watch mode
+# development mode
 $ pnpm start:dev
-
-# production mode
-$ pnpm start:prod
 ```
 
 ## Test
@@ -84,3 +82,7 @@ $ pnpm test:e2e
 # test coverage
 $ pnpm test:cov
 ```
+
+# Deployment
+
+To deploy the app on production with my build, copy the `docker-compose.yaml.example` (if you used it for the database) to the server as `docker-compose.yaml` and modify the environment variables. Once on the server, run `docker compose up -d` in a folder with the compose file.
