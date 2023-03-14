@@ -91,7 +91,7 @@ export class PostService {
           description,
           imageId,
           authorId: profileId,
-          cultId: cult.cultId,
+          cultId: cult['cult'].id,
           type: type,
         },
         select: this.public,
