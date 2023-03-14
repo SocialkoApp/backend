@@ -173,7 +173,6 @@ export class UserService {
   }
 
   async check(user: Prisma.UserWhereUniqueInput) {
-    this.logger.verbose(user);
     if (!(await this.prisma.user.findUnique({ where: user }))) {
       throw new NotFoundException('This user does not exist');
     }
