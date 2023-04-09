@@ -24,17 +24,14 @@ export class EmailConfirmationService {
   private logger = new Logger(EmailConfirmationService.name);
 
   async sendConfirmationEmail(emailOrUsername: string) {
-    const { emailConfirmationSentAt, email } =
-      await this.userService.findByUsernameOrEmail(emailOrUsername);
+    const { email } = await this.userService.findByUsernameOrEmail(
+      emailOrUsername,
+    );
     this.logger.verbose(`Sending confirmation email to ${email}`);
     const payload: EmailVerificationPayload = { email };
     const token = this.jwtService.sign(payload);
     try {
-      await this.mailService.sendConfirmMail(
-        email,
-        token,
-        !emailConfirmationSentAt,
-      );
+      await this.mailService.sendConfirmMail(email, token);
       await this.userService.update(
         { email },
         { emailConfirmationSentAt: new Date() },

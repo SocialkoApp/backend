@@ -1,3 +1,52 @@
-<p><b>Hey {{name}}!</b></p>
-<p>Follow this link to confirm your email:</p>
-<a href={{url}}>{{url}}</a>
+<style>
+  @import
+  url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap");
+  * { margin: 0; padding: 0; box-sizing: border-box; } body { background-color:
+  #171717; width: 100%; height: 100%; } table { margin-left: auto; margin-right:
+  auto; padding-bottom: 20px; padding-top: 20px; } td { text-align: center; }
+  .text { font-family: "Quicksand", sans-serif; color: #f0f0f0; } .button {
+  padding: 10px 15px; border: none; text-decoration: none; background-color:
+  #b810c3; color: #f0f0f0; border-radius: 12px; } .sm { font-size: 12px; }
+</style>
+<body>
+  <table width='100%' border='0' cellspacing='0' cellpadding='0'>
+    <tr>
+      <td>
+        <h1 class='text'><b>hey {{name}}!</b></h1>
+      </td>
+    </tr>
+    <tr>
+      <td><br /></td>
+    </tr>
+    <tr>
+      <td>
+        <h2 class='text'>thanks for joining socialko!</h2>
+      </td>
+    </tr>
+    <tr>
+      <td><br /></td>
+    </tr>
+    <tr>
+      <td>
+        <p class='text'>
+          secure your account by confirming your email in just one tap!
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p class='text'>
+          to make sure that you can login into your account anytime, anywhere.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td><br /></td>
+    </tr>
+    <tr>
+      <td>
+        <a class='button text' href='{{url}}'>confirm my email</a>
+      </td>
+    </tr>
+  </table>
+</body>
