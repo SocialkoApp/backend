@@ -6,7 +6,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { CultRole, Prisma } from '@prisma/client';
+import { OrganizationRole, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { CreatePostDto } from './dto/create.dto';
@@ -36,7 +36,7 @@ export class PostService {
         url: true,
       },
     },
-    cult: {
+    organization: {
       select: {
         role: true,
       },
@@ -82,7 +82,7 @@ export class PostService {
     { title, description, imageId, type }: CreatePostDto,
   ) {
     const { profileId } = await this.userService.find({ id });
-    const { cult } = await this.profileService.find({ id: profileId });
+    const { organization } = await this.profileService.find({ id: profileId });
 
     try {
       const post = await this.prisma.post.create({
@@ -91,7 +91,7 @@ export class PostService {
           description,
           imageId,
           authorId: profileId,
-          cultId: cult['cult'].id,
+          organizationId: organization['organization'].id,
           type: type,
         },
         select: this.public,
@@ -107,7 +107,7 @@ export class PostService {
     this.check(postId);
 
     const { profileId } = await this.userService.find({ id });
-    const { cult } = await this.profileService.find({ id: profileId });
+    const { organization } = await this.profileService.find({ id: profileId });
 
     try {
       const post = await this.prisma.post.findUnique({
@@ -115,8 +115,8 @@ export class PostService {
         select: this.public,
       });
 
-      if (post.cultId !== cult.cultId) {
-        throw new ForbiddenException("This post isn't from your cult.");
+      if (post.organizationId !== organization.organizationId) {
+        throw new ForbiddenException("This post isn't from your organization.");
       }
 
       return post;
@@ -125,15 +125,15 @@ export class PostService {
     }
   }
 
-  // Get all posts from the cult
+  // Get all posts from the organization
   async getPosts(id: string) {
     const { profileId } = await this.userService.find({ id });
-    const { cult } = await this.profileService.find({ id: profileId });
+    const { organization } = await this.profileService.find({ id: profileId });
 
     try {
       const posts = await this.prisma.post.findMany({
         where: {
-          cultId: cult['cult'].id,
+          organizationId: organization['organization'].id,
         },
         select: this.public,
         orderBy: {
@@ -150,7 +150,7 @@ export class PostService {
   async getUserPosts(id: string, username: string) {
     // User details
     const { profileId } = await this.userService.find({ id });
-    const { cult } = await this.profileService.find({ id: profileId });
+    const { organization } = await this.profileService.find({ id: profileId });
 
     // Target details
     const target = await this.userService.find({ username });
@@ -159,12 +159,12 @@ export class PostService {
     });
 
     if (
-      !cult ||
-      !targetProfile.cult ||
-      cult.cultId !== targetProfile.cult.cultId
+      !organization ||
+      !targetProfile.organization ||
+      organization.organizationId !== targetProfile.organization.organizationId
     ) {
       throw new ForbiddenException(
-        "You're not in the same cult as this user so you can't view their posts.",
+        "You're not in the same organization as this user so you can't view their posts.",
       );
     }
 
@@ -234,7 +234,7 @@ export class PostService {
 
   async upvotePost(id: string, postId: string) {
     const { profileId } = await this.userService.find({ id });
-    const { cult } = await this.profileService.find({ id: profileId });
+    const { organization } = await this.profileService.find({ id: profileId });
 
     this.check(postId);
 
@@ -247,7 +247,7 @@ export class PostService {
       await this.downvotePost(id, postId);
     }
 
-    if (cult.role === CultRole.Ruler) pointValue = 2;
+    if (organization.role === OrganizationRole.Admin) pointValue = 2;
 
     try {
       const post = await this.prisma.post.update({
@@ -287,7 +287,7 @@ export class PostService {
 
   async downvotePost(id: string, postId: string) {
     const { profileId } = await this.userService.find({ id });
-    const { cult } = await this.profileService.find({ id: profileId });
+    const { organization } = await this.profileService.find({ id: profileId });
 
     this.check(postId);
 
@@ -300,7 +300,7 @@ export class PostService {
       await this.upvotePost(id, postId);
     }
 
-    if (cult.role === CultRole.Ruler) pointValue = 2;
+    if (organization.role === OrganizationRole.Admin) pointValue = 2;
 
     try {
       const post = await this.prisma.post.update({

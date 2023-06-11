@@ -1,4 +1,4 @@
-import { UpdateCultDto } from './dto/update-cult.dto';
+import { UpdateOrganizationDto } from './dto/update-org.dto';
 import {
   BadRequestException,
   ConflictException,
@@ -6,11 +6,11 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { CultRole, Prisma } from '@prisma/client';
+import { OrganizationRole, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProfileService } from 'src/profile/profile.service';
 import { UserService } from 'src/user/user.service';
-import { CreateCultDto } from './dto/create.dto';
+import { CreateOrganizationDto } from './dto/create.dto';
 
 export enum Action {
   Add = 'add',
@@ -23,14 +23,14 @@ export enum RequestAction {
 }
 
 @Injectable()
-export class CultService {
+export class OrganizationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
     private readonly profileService: ProfileService,
   ) {}
 
-  private readonly logger: Logger = new Logger(CultService.name);
+  private readonly logger: Logger = new Logger(OrganizationService.name);
 
   private profile: Prisma.ProfileSelect = {
     id: true,
@@ -50,7 +50,7 @@ export class CultService {
     updatedAt: true,
   };
 
-  private cult: Prisma.CultSelect = {
+  private org: Prisma.OrganizationSelect = {
     id: true,
     name: true,
     description: true,
@@ -66,8 +66,8 @@ export class CultService {
     },
   };
 
-  private cultPrivate: Prisma.CultSelect = {
-    ...this.cult,
+  private orgPrivate: Prisma.OrganizationSelect = {
+    ...this.org,
     members: {
       select: {
         member: {
@@ -78,8 +78,8 @@ export class CultService {
     },
   };
 
-  private cultRuler: Prisma.CultSelect = {
-    ...this.cultPrivate,
+  private orgAdmin: Prisma.OrganizationSelect = {
+    ...this.orgPrivate,
     joinRequests: {
       select: {
         profile: {
@@ -89,25 +89,28 @@ export class CultService {
     },
   };
 
-  async createCult(id: string, { name, description, iconId }: CreateCultDto) {
+  async createOrg(
+    id: string,
+    { name, description, iconId }: CreateOrganizationDto,
+  ) {
     const { profileId } = await this.userService.find({ id });
 
     if (!this.nameRegex.test(name)) {
-      throw new BadRequestException('Invalid cult name');
+      throw new BadRequestException('Invalid organization name');
     }
 
-    if (await this.userInCult(profileId)) {
-      throw new ConflictException('You are already in a cult');
+    if (await this.userInOrg(profileId)) {
+      throw new ConflictException('You are already in an organization');
     }
 
     if (await this.userHasRequest(profileId)) {
       throw new ConflictException('You currently have a pending join request');
     }
 
-    this.logger.verbose('Attempting to create cult');
+    this.logger.verbose('Attempting to create organization');
 
     try {
-      const cult = await this.prisma.cult.create({
+      const organization = await this.prisma.organization.create({
         data: {
           name,
           description,
@@ -115,15 +118,15 @@ export class CultService {
           members: {
             create: {
               memberId: profileId,
-              role: CultRole.Ruler,
+              role: OrganizationRole.Admin,
             },
           },
         },
       });
 
-      this.logger.verbose(`The cult ${name} has been created`);
+      this.logger.verbose(`The organization ${name} has been created`);
 
-      return cult;
+      return organization;
     } catch (e) {
       this.handleException(e);
     }
@@ -131,100 +134,102 @@ export class CultService {
 
   async findAll() {
     try {
-      const cults = await this.prisma.cult.findMany({
-        select: this.cult,
+      const orgs = await this.prisma.organization.findMany({
+        select: this.org,
       });
 
-      return cults;
+      return orgs;
     } catch (e) {
       this.handleException(e);
     }
   }
 
-  async findMyCult(id: string) {
+  async findMyOrganization(id: string) {
     const { profileId } = await this.userService.find({ id });
-    const { cult } = await this.profileService.find({ id: profileId });
+    const { organization } = await this.profileService.find({ id: profileId });
 
-    if (!(await this.userInCult(profileId))) {
-      throw new ForbiddenException("You're not in a cult.");
+    if (!(await this.userInOrg(profileId))) {
+      throw new ForbiddenException("You're not in an organization.");
     }
 
     try {
-      const c = await this.prisma.cult.findUnique({
+      const c = await this.prisma.organization.findUnique({
         where: {
-          id: cult['cult'].id,
+          id: organization['organization'].id,
         },
         select:
-          cult.role === CultRole.Ruler ? this.cultRuler : this.cultPrivate,
+          organization.role === OrganizationRole.Admin
+            ? this.orgAdmin
+            : this.orgPrivate,
       });
 
       return {
         ...c,
-        role: cult.role,
+        role: organization.role,
       };
     } catch (e) {
       this.handleException(e);
     }
   }
 
-  async updateMyCult(id: string, body: UpdateCultDto) {
+  async updateMyOrganization(id: string, body: UpdateOrganizationDto) {
     const { profileId } = await this.userService.find({ id });
-    const { cult } = await this.profileService.find({ id: profileId });
+    const { organization } = await this.profileService.find({ id: profileId });
 
-    if (!(await this.userInCult(profileId))) {
-      throw new ForbiddenException("You're not in a cult.");
+    if (!(await this.userInOrg(profileId))) {
+      throw new ForbiddenException("You're not in an organization.");
     }
 
     if (!this.nameRegex.test(body.name)) {
-      throw new BadRequestException('Invalid cult name');
+      throw new BadRequestException('Invalid organization name');
     }
 
     try {
-      const c = await this.prisma.cult.update({
+      const org = await this.prisma.organization.update({
         where: {
-          id: cult['cult'].id,
+          id: organization['organization'].id,
         },
         data: body,
-        select: this.cult,
+        select: this.org,
       });
 
-      return c;
+      return org;
     } catch (e) {
       this.handleException(e);
     }
   }
 
-  async updateMyCultIcon(id: string, fileId: string) {
+  async updateMyOrganizationIcon(id: string, fileId: string) {
     const { profileId } = await this.userService.find({ id });
-    const { cult } = await this.profileService.find({ id: profileId });
+    const { organization } = await this.profileService.find({ id: profileId });
 
-    if (!(await this.userInCult(profileId))) {
-      throw new ForbiddenException("You're not in a cult.");
+    if (!(await this.userInOrg(profileId))) {
+      throw new ForbiddenException("You're not in an organization.");
     }
 
     try {
-      const c = await this.prisma.cult.update({
-        where: { id: cult['cult'].id },
+      const org = await this.prisma.organization.update({
+        where: { id: organization['organization'].id },
         data: {
           iconId: fileId,
         },
-        select: this.cult,
+        select: this.org,
       });
 
-      return c;
+      return org;
     } catch (e) {
       this.handleException(e);
     }
   }
 
-  async find(input: Prisma.CultWhereUniqueInput) {
+  async find(input: Prisma.OrganizationWhereUniqueInput) {
     try {
-      const cult = await this.prisma.cult.findUnique({
+      const org = await this.prisma.organization.findUnique({
         where: input,
-        select: this.cult,
+        select: this.org,
       });
 
-      return cult;
+      return org;
     } catch (e) {
       this.handleException(e);
     }
@@ -234,45 +239,47 @@ export class CultService {
     const { profileId } = await this.userService.find({ id });
 
     try {
-      let cult = await this.prisma.cult.findUnique({
+      let org = await this.prisma.organization.findUnique({
         where: {
           name,
         },
-        select: this.cult,
+        select: this.org,
       });
 
-      const isMember = await this.checkMembership(profileId, cult.id);
+      const isMember = await this.checkMembership(profileId, org.id);
 
       if (isMember) {
-        cult = await this.prisma.cult.findUnique({
+        org = await this.prisma.organization.findUnique({
           where: {
             name,
           },
-          select: this.cultPrivate,
+          select: this.orgPrivate,
         });
       }
 
-      return cult;
+      return org;
     } catch (e) {
       this.handleException(e);
     }
   }
 
-  async joinRequest(id: string, cultId: string) {
+  async joinRequest(id: string, organizationId: string) {
     const { profileId } = await this.userService.find({ id });
 
-    if (await this.userInCult(profileId)) {
-      throw new ConflictException('You are already in a cult');
+    if (await this.userInOrg(profileId)) {
+      throw new ConflictException('You are already in an organization');
     }
 
     if (await this.userHasRequest(profileId)) {
-      throw new ConflictException('You already requested to join a cult');
+      throw new ConflictException(
+        'You already requested to join an organization',
+      );
     }
 
     try {
-      await this.prisma.cult.update({
+      await this.prisma.organization.update({
         where: {
-          id: cultId,
+          id: organizationId,
         },
         data: {
           joinRequests: {
@@ -289,9 +296,9 @@ export class CultService {
         },
         select: {
           ...this.profile,
-          cultJoinRequest: {
+          organizationJoinRequest: {
             select: {
-              cultId: true,
+              organizationId: true,
             },
           },
         },
@@ -306,20 +313,20 @@ export class CultService {
   async manageRequest(id: string, requesterId: string, action: RequestAction) {
     const profile = await this.profileService.getProfileByUserId(id);
 
-    if (!(await this.userInCult(profile.id))) {
-      throw new ForbiddenException("You're not in a cult.");
+    if (!(await this.userInOrg(profile.id))) {
+      throw new ForbiddenException("You're not in an organization.");
     }
 
-    if (profile.cult.role !== CultRole.Ruler) {
+    if (profile.organization.role !== OrganizationRole.Admin) {
       throw new ForbiddenException(
-        "You're not the ruler, so you can't manage people",
+        "You're not the Admin, so you can't manage people",
       );
     }
 
     try {
-      const decline = await this.prisma.cult.update({
+      const decline = await this.prisma.organization.update({
         where: {
-          id: profile.cult['cult'].id,
+          id: profile.organization['organization'].id,
         },
         data: {
           joinRequests: {
@@ -353,14 +360,14 @@ export class CultService {
   async findMembers(id: string) {
     const profile = await this.profileService.getProfileByUserId(id);
 
-    if (!(await this.userInCult(profile.id))) {
-      throw new ForbiddenException("You're not in a cult.");
+    if (!(await this.userInOrg(profile.id))) {
+      throw new ForbiddenException("You're not in an organization.");
     }
 
     try {
-      const members = await this.prisma.cult.findUnique({
+      const members = await this.prisma.organization.findUnique({
         where: {
-          id: profile.cult['cult'].id,
+          id: profile.organization['organization'].id,
         },
         select: {
           members: {
@@ -383,20 +390,20 @@ export class CultService {
   async findRequests(id: string) {
     const profile = await this.profileService.getProfileByUserId(id);
 
-    if (!(await this.userInCult(profile.id))) {
-      throw new ForbiddenException("You're not in a cult.");
+    if (!(await this.userInOrg(profile.id))) {
+      throw new ForbiddenException("You're not in an organization.");
     }
 
-    if (profile.cult.role !== CultRole.Ruler) {
+    if (profile.organization.role !== OrganizationRole.Admin) {
       throw new ForbiddenException(
-        "You're not the ruler, so you can't manage people",
+        "You're not the Admin, so you can't manage people",
       );
     }
 
     try {
-      const requests = await this.prisma.cult.findUnique({
+      const requests = await this.prisma.organization.findUnique({
         where: {
-          id: profile.cult['cult'].id,
+          id: profile.organization['organization'].id,
         },
         select: {
           joinRequests: {
@@ -416,23 +423,23 @@ export class CultService {
   }
 
   async manageMembership(id: string, username: string, action: Action) {
-    // The profile of the user who is adding/removing someone to/from the cult
+    // The profile of the user who is adding/removing someone to/from the organization
     const user = await this.userService.find({ id });
-    const { cult } = await this.profileService.getProfileByUserId(id);
+    const { organization } = await this.profileService.getProfileByUserId(id);
 
-    // The profile of the user we're adding/removing to the cult
+    // The profile of the user we're adding/removing to the organization
     const addee = await this.userService.find({ username });
 
-    if (cult.role !== CultRole.Ruler) {
+    if (organization.role !== OrganizationRole.Admin) {
       throw new ForbiddenException(
-        "You're not the ruler, so you can't manage people",
+        "You're not the Admin, so you can't manage people",
       );
     }
 
     try {
-      const add = await this.prisma.cult.update({
+      const add = await this.prisma.organization.update({
         where: {
-          id: cult['cult'].id,
+          id: organization['organization'].id,
         },
         data: {
           members:
@@ -448,7 +455,7 @@ export class CultService {
                   },
                 },
         },
-        select: this.cultPrivate,
+        select: this.orgPrivate,
       });
 
       if (action === Action.Remove) {
@@ -471,13 +478,13 @@ export class CultService {
     }
   }
 
-  async userInCult(id: string) {
+  async userInOrg(id: string) {
     try {
       const profile = await this.profileService.find({ id });
 
-      if (!profile.cult) return false;
+      if (!profile.organization) return false;
 
-      if (profile.cult !== null) return true;
+      if (profile.organization !== null) return true;
     } catch (e) {
       this.handleException(e);
     }
@@ -489,9 +496,9 @@ export class CultService {
     try {
       const profile = await this.profileService.find({ id });
 
-      if (!profile.cultJoinRequest) return false;
+      if (!profile.organizationJoinRequest) return false;
 
-      if (profile.cultJoinRequest !== null) return true;
+      if (profile.organizationJoinRequest !== null) return true;
     } catch (e) {
       this.handleException(e);
     }
@@ -499,15 +506,15 @@ export class CultService {
     return false;
   }
 
-  async checkMembership(id: string, cultId: string) {
+  async checkMembership(id: string, organizationId: string) {
     try {
       const profile = await this.profileService.find({ id });
 
-      if (!profile.cult) {
+      if (!profile.organization) {
         return false;
       }
 
-      if (profile.cult.cultId === cultId) {
+      if (profile.organization.organizationId === organizationId) {
         return true;
       }
     } catch (e) {

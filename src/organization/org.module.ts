@@ -3,13 +3,13 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ProfileModule } from 'src/profile/profile.module';
 import { ProfileService } from 'src/profile/profile.service';
 import { UserModule } from 'src/user/user.module';
-import { CultController } from './cult.controller';
-import { CultService } from './cult.service';
+import { OrganizationController } from './org.controller';
+import { OrganizationService } from './org.service';
 import { FilesService } from 'src/files/files.service';
 
 @Module({
   imports: [ProfileModule, UserModule],
-  providers: [CultService, PrismaService, ProfileService],
-  controllers: [CultController],
+  providers: [OrganizationService, PrismaService, ProfileService],
+  controllers: [OrganizationController],
 })
-export class CultModule {}
+export class OrganizationModule {}

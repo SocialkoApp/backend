@@ -11,10 +11,6 @@ generator client {
   binaryTargets = ["native"]
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-}
-
 model User {
   id       String @id @default(uuid())
   email    String @unique
@@ -59,8 +55,8 @@ model Profile {
   voted    Vote[]
   comments Comment[]
 
-  cult            CultMembership?
-  cultJoinRequest CultJoinRequest?
+  organization            OrganizationMembership?
+  organizationJoinRequest OrganizationJoinRequest?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -83,8 +79,8 @@ model Post {
   author   Profile? @relation(fields: [authorId], references: [id])
   authorId String?
 
-  cult   Cult?   @relation(fields: [cultId], references: [id])
-  cultId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?
 
   type PostType @default(Image)
 
@@ -127,52 +123,52 @@ model Comment {
   content String
 }
 
-model CultMembership {
-  role CultRole @default(Member)
+model OrganizationMembership {
+  role OrganizationRole @default(Member)
 
   member   Profile @relation(fields: [memberId], references: [id])
   memberId String  @unique
 
-  cult   Cult   @relation(fields: [cultId], references: [id])
-  cultId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
 
-  @@id([cultId, memberId])
-  @@map("cult_membership")
+  @@id([organizationId, memberId])
+  @@map("organization_membership")
 }
 
-enum CultRole {
-  Ruler
+enum OrganizationRole {
+  Admin
   Member
 }
 
-model Cult {
+model Organization {
   id String @id @default(uuid())
 
   name        String @unique
   description String
 
-  members CultMembership[]
+  members OrganizationMembership[]
 
   icon   PublicFile? @relation(fields: [iconId], references: [id])
   iconId String?
 
   posts Post[]
 
-  joinRequests CultJoinRequest[]
+  joinRequests OrganizationJoinRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
 
-model CultJoinRequest {
-  cult   Cult   @relation(fields: [cultId], references: [id])
-  cultId String
+model OrganizationJoinRequest {
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
 
   profile   Profile @relation(fields: [profileId], references: [id])
   profileId String  @unique
 
-  @@id([cultId, profileId])
-  @@map("cult_join_request")
+  @@id([organizationId, profileId])
+  @@map("organization_join_request")
 }
 
 model PublicFile {
@@ -185,7 +181,7 @@ model PublicFile {
 
   post Post[]
 
-  cult Cult[]
+  organization Organization[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt

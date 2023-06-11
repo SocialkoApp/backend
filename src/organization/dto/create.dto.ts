@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Matches } from 'class-validator';
 
-export class CreateCultDto {
+export class CreateOrganizationDto {
   @ApiProperty({
     name: 'name',
     example: 'Vegovacraft',
